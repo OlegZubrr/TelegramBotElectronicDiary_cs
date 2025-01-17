@@ -18,10 +18,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Microsoft" Version="8.0.2" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.1" />
+    <PackageReference Include="Telegram.Bot" Version="22.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DataBase\Models\" />
     <Folder Include="DataBase\Repositories\" />
   </ItemGroup>
 
