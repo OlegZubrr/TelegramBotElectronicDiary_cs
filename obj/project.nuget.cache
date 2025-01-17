@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "9vpWG0eIvJs=",
+  "success": true,
+  "projectFilePath": "D:\\CodeC#\\TelegramBotEFCore\\TelegramBotEFCore\\TelegramBotEFCore.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ghtp7\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.21.0\\microsoft.visualstudio.azure.containers.tools.targets.1.21.0.nupkg.sha512",
+    "C:\\Users\\ghtp7\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.11\\microsoft.netcore.app.host.win-x64.8.0.11.nupkg.sha512"
+  ],
+  "logs": []
+}
