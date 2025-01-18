@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBotEFCore.Handlers.Interfaces;
+using TelegramBotEFCore.Models;
 
 namespace TelegramBotEFCore.Handlers
 {
@@ -13,6 +14,7 @@ namespace TelegramBotEFCore.Handlers
     {
         private readonly Dictionary<string, IMessageHandler> _handlers;
         private readonly ITelegramBotClient _botClient;
+        private readonly Dictionary<long, UserState> _userStates = new Dictionary<long, UserState>();
 
         public CommandDispatcher(ITelegramBotClient botClient) 
         {
@@ -20,6 +22,9 @@ namespace TelegramBotEFCore.Handlers
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
+                {"/getRole",new GetRoleCommandHandler(botClient)},
+                {"/becomeStudent",new BecomeStudentHandler(botClient)},
+                {"/becomeTeacher",new BecomeTeacherHandler(botClient)},
             };
         }
         public async Task DispatchAsync(Message message) 
@@ -30,7 +35,7 @@ namespace TelegramBotEFCore.Handlers
             }
             if (_handlers.TryGetValue(message.Text, out var handler))
             {
-                await handler.HandleMessageAsync(message);
+                await handler.HandleMessageAsync(message,_userStates);
             }
             else
             {

@@ -7,6 +7,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers;
 
 namespace TelegramBotEFCore.Infrastructure
@@ -15,11 +16,13 @@ namespace TelegramBotEFCore.Infrastructure
     {
         private readonly ITelegramBotClient _botClient;
         private readonly CommandDispatcher _commandDispatcher;
+        private readonly UsersRepository _usersRepository;
 
-        public TelegramBot(string token ,CommandDispatcher commandDispatcher) 
+        public TelegramBot(string token ,CommandDispatcher commandDispatcher,UsersRepository usersRepository) 
         {
             _botClient = new TelegramBotClient(token);
             _commandDispatcher = commandDispatcher;
+            _usersRepository = usersRepository;
         }
         public void Start() 
         {
@@ -31,10 +34,13 @@ namespace TelegramBotEFCore.Infrastructure
         }
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            if (update.Message != null)
+            var message = update.Message;
+
+            if (message != null)
             {
-                await _commandDispatcher.DispatchAsync(update.Message);
+                await _commandDispatcher.DispatchAsync(message);
             }
+            var user = await _usersRepository.GetOrAddUserAsync(message.Chat.Id, message.Chat.Username);
         }
         private static async Task HandleErrorAsync(ITelegramBotClient client, Exception exception, HandleErrorSource source, CancellationToken token)
         {

@@ -45,14 +45,29 @@ namespace TelegramBotEFCore.DataBase.Repositories
             await _dbContext.AddAsync(userEntity);
             await _dbContext.SaveChangesAsync();
         }
+        public async Task<UserEntity> GetOrAddUserAsync(long telegramId, string? userName)
+        {
+            var user = await GetByTelegramId(telegramId);
+            if (user != null)
+            {
+                return user;
+            }
+
+            var newUserId = Guid.NewGuid();
+            await Add(newUserId, telegramId, userName);
+
+            return new UserEntity
+            {
+                Id = newUserId,
+                TelegramId = telegramId,
+                UserName = userName
+            };
+        }
         public async Task Delete(Guid id) 
         {
             await _dbContext.Users
                 .Where(u => u.Id == id)
                 .ExecuteDeleteAsync();
         }
-
-        
-
     }
 }

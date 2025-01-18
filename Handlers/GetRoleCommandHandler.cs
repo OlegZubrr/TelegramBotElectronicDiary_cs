@@ -10,18 +10,22 @@ using TelegramBotEFCore.Models;
 
 namespace TelegramBotEFCore.Handlers
 {
-    public class StartCommandHandler : IMessageHandler
+    public class GetRoleCommandHandler : IMessageHandler
     {
         private readonly ITelegramBotClient _botClient;
 
-        public StartCommandHandler(ITelegramBotClient botClient)
+        public GetRoleCommandHandler(ITelegramBotClient botClient)
         {
             _botClient = botClient;
         }
         public async Task HandleMessageAsync(Message message, Dictionary<long, UserState> userStates)
         {
-            string responce = "Привет";
-            await _botClient.SendMessage(message.Chat.Id,responce);
+            var chatId = message.Chat.Id;
+
+            userStates[chatId] = UserState.WaitingForRole;
+
+            string responce =  $"напишите {"\n"}/becomeStudent - чтобы стать учеником {"\n"}/becomeTeacher - чтобы стать учителем";
+            await _botClient.SendMessage(message.Chat.Id, responce);
         }
     }
 }

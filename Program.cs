@@ -6,6 +6,8 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using TelegramBotEFCore.DataBase;
+using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers;
 using TelegramBotEFCore.Infrastructure;
 namespace TelegramBotEFCore
@@ -18,7 +20,9 @@ namespace TelegramBotEFCore
             string botToken = ConfigurationManager.AppSettings[nameof(botToken)];
             var client = new TelegramBotClient(botToken);
             var commandDispatcher = new CommandDispatcher(client);
-            var telegramBot = new TelegramBot(botToken, commandDispatcher);
+            var dbContext = new ApplicationDbContext();
+            var usersRepository = new UsersRepository(dbContext);
+            var telegramBot = new TelegramBot(botToken, commandDispatcher,usersRepository);
             telegramBot.Start();
 
             Console.WriteLine("Нажмите Enter для завершения...");
