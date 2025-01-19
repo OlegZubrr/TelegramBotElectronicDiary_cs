@@ -19,10 +19,12 @@ namespace TelegramBotEFCore
         {
             string botToken = ConfigurationManager.AppSettings[nameof(botToken)];
             var client = new TelegramBotClient(botToken);
-            var commandDispatcher = new CommandDispatcher(client);
             var dbContext = new ApplicationDbContext();
             var usersRepository = new UsersRepository(dbContext);
-            var telegramBot = new TelegramBot(botToken, commandDispatcher,usersRepository);
+            var userRoleVerificationRepository = new UserRoleVerificationRepository(dbContext);
+            var teacherRepository = new TeachersRepository(dbContext);
+            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository,teacherRepository);
+            var telegramBot = new TelegramBot(botToken, commandDispatcher, usersRepository);
             telegramBot.Start();
 
             Console.WriteLine("Нажмите Enter для завершения...");

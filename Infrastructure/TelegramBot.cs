@@ -36,11 +36,14 @@ namespace TelegramBotEFCore.Infrastructure
         {
             var message = update.Message;
 
-            if (message != null)
+            if (message == null)
             {
-                await _commandDispatcher.DispatchAsync(message);
+                return;
             }
             var user = await _usersRepository.GetOrAddUserAsync(message.Chat.Id, message.Chat.Username);
+            await _commandDispatcher.DispatchAsync(message);
+
+            
         }
         private static async Task HandleErrorAsync(ITelegramBotClient client, Exception exception, HandleErrorSource source, CancellationToken token)
         {

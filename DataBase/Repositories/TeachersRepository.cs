@@ -11,6 +11,7 @@ namespace TelegramBotEFCore.DataBase.Repositories
     public class TeachersRepository
     {
         private ApplicationDbContext _dbContext;
+        
 
         public TeachersRepository(ApplicationDbContext dbContext)
         {
@@ -28,11 +29,11 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
-        public async Task Add(UserEntity user,Guid id,string name) 
+        public async Task Add(Guid userId,Guid id,string name) 
         {
             var teacherEntity = new TeacherEntity() 
             {
-                User = user,
+                UserId = userId,
                 Id = id,
                 Name = name
             };

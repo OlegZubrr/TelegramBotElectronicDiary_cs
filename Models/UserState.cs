@@ -11,6 +11,10 @@ namespace TelegramBotEFCore.Models
         None,           
         WaitingForRole, 
         BecomingTeacher,
-        BecomingStudent 
+        BecomingStudent,
+        GettingTeacherData,
+        GettiStudentData,
+        Teacher,
+        Student
     }
 }

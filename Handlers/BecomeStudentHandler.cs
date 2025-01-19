@@ -26,8 +26,7 @@ namespace TelegramBotEFCore.Handlers
             if (userStates.TryGetValue(chatId, out var state) && state == UserState.WaitingForRole)
             {
                 userStates[chatId] = UserState.BecomingStudent;
-                await _botClient.SendMessage(chatId, "Введите код который вы получили от администратора");
-              
+                await _botClient.SendMessage(chatId, "Введите код который вы получили от администратора");   
             }
             else
             {

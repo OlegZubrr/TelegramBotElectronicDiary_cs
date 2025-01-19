@@ -12,6 +12,7 @@ namespace TelegramBotEFCore.DataBase
         public DbSet<GroupEntity> Groups { get; set; }
         public DbSet<SubjectEntity> Subjects { get; set; }
         public DbSet<MarkEntity> Marks { get; set; }
+        public DbSet<UserRoleVerificationEntity> UserRoleVerification { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

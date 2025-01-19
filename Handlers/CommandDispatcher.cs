@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using TelegramBotEFCore.DataBase.Models;
+using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
 
@@ -15,16 +17,34 @@ namespace TelegramBotEFCore.Handlers
         private readonly Dictionary<string, IMessageHandler> _handlers;
         private readonly ITelegramBotClient _botClient;
         private readonly Dictionary<long, UserState> _userStates = new Dictionary<long, UserState>();
+        private readonly Dictionary<UserState, IStateHandler> _stateHandlers;
+        private readonly UserRoleVerificationRepository _userRoleVerificationEntity;
+        private readonly UsersRepository _usersRepository;
+        private readonly TeachersRepository _teachersRepository;
 
-        public CommandDispatcher(ITelegramBotClient botClient) 
+        public CommandDispatcher
+            (
+            ITelegramBotClient botClient,
+            UserRoleVerificationRepository userRoleVerificationRepository,
+            UsersRepository usersRepository,
+            TeachersRepository teachersRepository
+            ) 
         {
             _botClient = botClient;
+            _userRoleVerificationEntity = userRoleVerificationRepository;
+            _usersRepository = usersRepository;
+            _teachersRepository = teachersRepository;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
                 {"/getRole",new GetRoleCommandHandler(botClient)},
                 {"/becomeStudent",new BecomeStudentHandler(botClient)},
-                {"/becomeTeacher",new BecomeTeacherHandler(botClient)},
+                {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
+            };
+            _stateHandlers = new Dictionary<UserState, IStateHandler>
+            {
+                {UserState.BecomingTeacher,new BecomingTeacherHandler(botClient,userRoleVerificationRepository,usersRepository,teachersRepository) },
+                {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) }
             };
         }
         public async Task DispatchAsync(Message message) 
@@ -33,21 +53,33 @@ namespace TelegramBotEFCore.Handlers
             {
                 return;
             }
+
+            var userId = message.Chat.Id;
+
+            if (!_userStates.TryGetValue(userId, out var currentState))
+            {
+                currentState = UserState.None;
+                _userStates[userId] = currentState;
+            }
+
+
             if (_handlers.TryGetValue(message.Text, out var handler))
             {
                 await handler.HandleMessageAsync(message,_userStates);
+            }
+            else if (_stateHandlers.TryGetValue(currentState, out var statehandler)) 
+            {
+                await statehandler.HandleAsync(message,_userStates);
             }
             else
             {
                 await HandleUnknownCommand(message);
             }
-
         }
         private async Task HandleUnknownCommand(Message message)
         {
             string response = "Извините, я не понимаю эту команду.";
             await _botClient.SendMessage(message.Chat.Id, response);
         }
-
     }
 }
