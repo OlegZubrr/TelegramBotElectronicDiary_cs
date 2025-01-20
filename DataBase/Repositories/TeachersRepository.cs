@@ -29,6 +29,12 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
+        public async Task<TeacherEntity?> GetByUserId(Guid id)
+        {
+            return await _dbContext.Teachers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.UserId == id);
+        }
         public async Task Add(Guid userId,Guid id,string name) 
         {
             var teacherEntity = new TeacherEntity() 

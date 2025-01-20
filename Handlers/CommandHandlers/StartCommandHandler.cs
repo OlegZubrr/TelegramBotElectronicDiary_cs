@@ -20,7 +20,7 @@ namespace TelegramBotEFCore.Handlers
         }
         public async Task HandleMessageAsync(Message message, Dictionary<long, UserState> userStates)
         {
-            string responce = "Привет";
+            string responce = "Привет \n мои команды \n /getRole";
             await _botClient.SendMessage(message.Chat.Id,responce);
         }
     }

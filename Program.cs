@@ -10,6 +10,7 @@ using TelegramBotEFCore.DataBase;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers;
 using TelegramBotEFCore.Infrastructure;
+using TelegramBotEFCore.Services;
 namespace TelegramBotEFCore
 {
     internal class Program
@@ -23,7 +24,9 @@ namespace TelegramBotEFCore
             var usersRepository = new UsersRepository(dbContext);
             var userRoleVerificationRepository = new UserRoleVerificationRepository(dbContext);
             var teacherRepository = new TeachersRepository(dbContext);
-            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository,teacherRepository);
+            var studentsRepository = new StudentsRepository(dbContext);
+            var userRoleService = new UserRoleService(usersRepository, teacherRepository, studentsRepository);
+            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository,teacherRepository,userRoleService);
             var telegramBot = new TelegramBot(botToken, commandDispatcher, usersRepository);
             telegramBot.Start();
 

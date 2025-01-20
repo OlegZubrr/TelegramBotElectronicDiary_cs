@@ -30,8 +30,15 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
-       public async Task Add(UserEntity user,Guid id,GroupEntity group,string name) 
-       {
+        public async Task <StudentEntity?> GetByUserId(Guid userId) 
+        {
+            return await _dbContext.Students
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+        }
+
+        public async Task Add(UserEntity user,Guid id,GroupEntity group,string name) 
+        {
             var studentEntity = new StudentEntity() 
             {
                 User = user,
@@ -41,7 +48,7 @@ namespace TelegramBotEFCore.DataBase.Repositories
             };
             await _dbContext.AddAsync(studentEntity);
             await _dbContext.SaveChangesAsync();
-       }
+        }
         public async Task Delete(Guid id)
         {
             await _dbContext.Students

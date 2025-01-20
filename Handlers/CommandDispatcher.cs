@@ -9,6 +9,7 @@ using TelegramBotEFCore.DataBase.Models;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
+using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers
 {
@@ -21,19 +22,22 @@ namespace TelegramBotEFCore.Handlers
         private readonly UserRoleVerificationRepository _userRoleVerificationEntity;
         private readonly UsersRepository _usersRepository;
         private readonly TeachersRepository _teachersRepository;
+        private readonly UserRoleService _userRoleService;
 
         public CommandDispatcher
             (
             ITelegramBotClient botClient,
             UserRoleVerificationRepository userRoleVerificationRepository,
             UsersRepository usersRepository,
-            TeachersRepository teachersRepository
+            TeachersRepository teachersRepository,
+            UserRoleService userRoleService
             ) 
         {
             _botClient = botClient;
             _userRoleVerificationEntity = userRoleVerificationRepository;
             _usersRepository = usersRepository;
             _teachersRepository = teachersRepository;
+            _userRoleService = userRoleService;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
@@ -58,10 +62,10 @@ namespace TelegramBotEFCore.Handlers
 
             if (!_userStates.TryGetValue(userId, out var currentState))
             {
-                currentState = UserState.None;
+                currentState = await _userRoleService.GetState(userId);
                 _userStates[userId] = currentState;
             }
-
+            Console.WriteLine(currentState);
 
             if (_handlers.TryGetValue(message.Text, out var handler))
             {

@@ -11,7 +11,7 @@ using TelegramBotEFCore.Models;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.DataBase.Models;
 
-namespace TelegramBotEFCore.Handlers
+namespace TelegramBotEFCore.Handlers.CommandHandlers
 {
     public class BecomeTeacherHandler : IMessageHandler
     {
@@ -56,7 +56,7 @@ namespace TelegramBotEFCore.Handlers
                     $"Код подтверждения:\n🚨\n<code>{registerCode}</code> \n🚨",
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
                 );
-                await _userRoleVerificationRepository.Add(userEntity.Id, guid, registerCode);  
+                await _userRoleVerificationRepository.Add(userEntity.Id, guid, registerCode);
             }
             else
             {

@@ -8,7 +8,7 @@ using Telegram.Bot.Types;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
 
-namespace TelegramBotEFCore.Handlers
+namespace TelegramBotEFCore.Handlers.CommandHandlers
 {
     public class GetRoleCommandHandler : IMessageHandler
     {
@@ -24,7 +24,7 @@ namespace TelegramBotEFCore.Handlers
 
             userStates[chatId] = UserState.WaitingForRole;
 
-            string responce =  $"напишите {"\n"}/becomeStudent - чтобы стать учеником {"\n"}/becomeTeacher - чтобы стать учителем";
+            string responce = $"напишите {"\n"}/becomeStudent - чтобы стать учеником {"\n"}/becomeTeacher - чтобы стать учителем";
             await _botClient.SendMessage(message.Chat.Id, responce);
         }
     }
