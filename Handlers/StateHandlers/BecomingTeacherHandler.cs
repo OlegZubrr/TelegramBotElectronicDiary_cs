@@ -9,9 +9,9 @@ using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
 
-namespace TelegramBotEFCore.Handlers
+namespace TelegramBotEFCore.Handlers.StateHandlers
 {
-    public class BecomingTeacherHandler:IStateHandler
+    public class BecomingTeacherHandler : IStateHandler
     {
         private readonly ITelegramBotClient _botClient;
         private readonly UserRoleVerificationRepository _userRoleVerificationRepository;
@@ -19,7 +19,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly TeachersRepository _teachersRepository;
 
         public BecomingTeacherHandler(ITelegramBotClient botClient,
-            UserRoleVerificationRepository userRoleVerificationRepository, 
+            UserRoleVerificationRepository userRoleVerificationRepository,
             UsersRepository usersRepository,
             TeachersRepository teachersRepository
             )
@@ -29,7 +29,7 @@ namespace TelegramBotEFCore.Handlers
             _usersRepository = usersRepository;
             _teachersRepository = teachersRepository;
         }
-        public async Task HandleAsync(Message message , Dictionary<long, UserState> userStates) 
+        public async Task HandleAsync(Message message, Dictionary<long, UserState> userStates)
         {
             if (message == null) return;
             var chatId = message.Chat.Id;
@@ -45,7 +45,7 @@ namespace TelegramBotEFCore.Handlers
             await _userRoleVerificationRepository.Delete(userRoleVerification.Id);
             Guid guid = Guid.NewGuid();
             await _botClient.SendMessage(chatId, "Введите своё имя");
-            
+
         }
 
     }

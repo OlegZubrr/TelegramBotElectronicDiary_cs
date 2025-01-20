@@ -7,7 +7,9 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBotEFCore.DataBase.Models;
 using TelegramBotEFCore.DataBase.Repositories;
+using TelegramBotEFCore.Handlers.CommandHandlers;
 using TelegramBotEFCore.Handlers.Interfaces;
+using TelegramBotEFCore.Handlers.StateHandlers;
 using TelegramBotEFCore.Models;
 using TelegramBotEFCore.Services;
 
@@ -23,6 +25,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly UsersRepository _usersRepository;
         private readonly TeachersRepository _teachersRepository;
         private readonly UserRoleService _userRoleService;
+        private readonly GroupsRepository _groupsRepository;
 
         public CommandDispatcher
             (
@@ -30,7 +33,8 @@ namespace TelegramBotEFCore.Handlers
             UserRoleVerificationRepository userRoleVerificationRepository,
             UsersRepository usersRepository,
             TeachersRepository teachersRepository,
-            UserRoleService userRoleService
+            UserRoleService userRoleService,
+            GroupsRepository groupsRepository
             ) 
         {
             _botClient = botClient;
@@ -38,17 +42,20 @@ namespace TelegramBotEFCore.Handlers
             _usersRepository = usersRepository;
             _teachersRepository = teachersRepository;
             _userRoleService = userRoleService;
+            _groupsRepository = groupsRepository;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
                 {"/getRole",new GetRoleCommandHandler(botClient)},
                 {"/becomeStudent",new BecomeStudentHandler(botClient)},
                 {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
+                {"/addGroup",new AddGroupHandler(botClient)}
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {
                 {UserState.BecomingTeacher,new BecomingTeacherHandler(botClient,userRoleVerificationRepository,usersRepository,teachersRepository) },
-                {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) }
+                {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) },
+                {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) }
             };
         }
         public async Task DispatchAsync(Message message) 

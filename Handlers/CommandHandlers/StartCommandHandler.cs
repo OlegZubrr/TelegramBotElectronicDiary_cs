@@ -8,7 +8,7 @@ using Telegram.Bot.Types;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
 
-namespace TelegramBotEFCore.Handlers
+namespace TelegramBotEFCore.Handlers.CommandHandlers
 {
     public class StartCommandHandler : IMessageHandler
     {
@@ -21,7 +21,7 @@ namespace TelegramBotEFCore.Handlers
         public async Task HandleMessageAsync(Message message, Dictionary<long, UserState> userStates)
         {
             string responce = "Привет \n мои команды \n /getRole";
-            await _botClient.SendMessage(message.Chat.Id,responce);
+            await _botClient.SendMessage(message.Chat.Id, responce);
         }
     }
 }

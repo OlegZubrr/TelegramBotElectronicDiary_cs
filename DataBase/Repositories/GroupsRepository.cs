@@ -29,11 +29,11 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
-        public async Task Add(List<TeacherEntity> teachers,Guid id,string name) 
+        public async Task Add(Guid teacherId,Guid id,string name) 
         {
             var groupEntity = new GroupEntity()
             {
-               Teachers = teachers,
+               TeachersIds = new List<Guid> { teacherId},
                Name = name,
 
             };
