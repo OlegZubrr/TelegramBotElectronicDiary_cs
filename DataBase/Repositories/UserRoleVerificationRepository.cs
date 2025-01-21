@@ -44,6 +44,5 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .Where(u => u.Id == id)
                 .ExecuteDeleteAsync();
         }
-
     }
 }

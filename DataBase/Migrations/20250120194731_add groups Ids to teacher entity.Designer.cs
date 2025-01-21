@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TelegramBotEFCore.DataBase;
 
@@ -11,9 +12,11 @@ using TelegramBotEFCore.DataBase;
 namespace TelegramBotEFCore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250120194731_add groups Ids to teacher entity")]
+    partial class addgroupsIdstoteacherentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace TelegramBotEFCore.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("GroupEntityTeacherEntity", b =>
+                {
+                    b.Property<Guid>("GroupsId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TeachersId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("GroupsId", "TeachersId");
+
+                    b.HasIndex("TeachersId");
+
+                    b.ToTable("GroupEntityTeacherEntity");
+                });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.GroupEntity", b =>
                 {
@@ -40,12 +58,11 @@ namespace TelegramBotEFCore.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid?>("TeacherEntityId")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("TeachersIds")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TeacherEntityId");
 
                     b.ToTable("Groups");
                 });
@@ -179,11 +196,19 @@ namespace TelegramBotEFCore.Migrations
                     b.ToTable("UserRoleVerification");
                 });
 
-            modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.GroupEntity", b =>
+            modelBuilder.Entity("GroupEntityTeacherEntity", b =>
                 {
+                    b.HasOne("TelegramBotEFCore.DataBase.Models.GroupEntity", null)
+                        .WithMany()
+                        .HasForeignKey("GroupsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("TelegramBotEFCore.DataBase.Models.TeacherEntity", null)
-                        .WithMany("Groups")
-                        .HasForeignKey("TeacherEntityId");
+                        .WithMany()
+                        .HasForeignKey("TeachersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.MarkEntity", b =>
@@ -272,11 +297,6 @@ namespace TelegramBotEFCore.Migrations
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.SubjectEntity", b =>
                 {
                     b.Navigation("Marks");
-                });
-
-            modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.TeacherEntity", b =>
-                {
-                    b.Navigation("Groups");
                 });
 #pragma warning restore 612, 618
         }

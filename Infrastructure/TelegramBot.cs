@@ -42,8 +42,7 @@ namespace TelegramBotEFCore.Infrastructure
             }
             var user = await _usersRepository.GetOrAddUserAsync(message.Chat.Id, message.Chat.Username);
             await _commandDispatcher.DispatchAsync(message);
-
-            
+    
         }
         private static async Task HandleErrorAsync(ITelegramBotClient client, Exception exception, HandleErrorSource source, CancellationToken token)
         {

@@ -30,7 +30,6 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
             _teachersRepository = teachersRepository;
             _usersRepository = usersRepository;
         }
-
         public async Task HandleAsync(Message message, Dictionary<long, UserState> userStates)
         {
             if(message == null || message.Text == null) return;
@@ -43,12 +42,11 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
             var guid = Guid.NewGuid();
             
             await _groupsRepository.Add(teacher.Id,guid,groupName);
+            await _teachersRepository.AddGroup(teacher, guid);
 
             userStates[chatId] = UserState.Teacher;
 
             await _botClient.SendMessage(chatId,$"группа {groupName} была добавлена ");
-
-
         }
     }
 }

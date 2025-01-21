@@ -49,7 +49,8 @@ namespace TelegramBotEFCore.Handlers
                 {"/getRole",new GetRoleCommandHandler(botClient)},
                 {"/becomeStudent",new BecomeStudentHandler(botClient)},
                 {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
-                {"/addGroup",new AddGroupHandler(botClient)}
+                {"/addGroup",new AddGroupHandler(botClient)},
+                {"/getGroups",new GetGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository) }
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {

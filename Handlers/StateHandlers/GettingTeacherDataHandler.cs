@@ -35,7 +35,10 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
             await _teachersRepository.Add(user.Id, guid, name);
             userStates[chatId] = UserState.Teacher;
 
-            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как учитель");
+            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как учитель \n " +
+                $"доступные вам команды: \n" +
+                $"/addGroup - добавить группу \n" +
+                $"/getGroups - получить список групп");
         }
     }
 }

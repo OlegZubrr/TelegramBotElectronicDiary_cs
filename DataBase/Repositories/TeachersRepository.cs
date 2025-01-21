@@ -29,6 +29,13 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
+        public async Task<TeacherEntity?> GetByIdWithLessons(Guid id) 
+        {
+            return await _dbContext.Teachers
+                .AsNoTracking()
+                .Include(t => t.Groups)
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
         public async Task<TeacherEntity?> GetByUserId(Guid id)
         {
             return await _dbContext.Teachers
@@ -44,6 +51,16 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 Name = name
             };
             await _dbContext.AddAsync(teacherEntity);
+            await _dbContext.SaveChangesAsync();
+        }
+        public async Task AddGroup(TeacherEntity teacher,Guid groupId) 
+        {
+            teacher.GroupsIds.Add(groupId);
+            await _dbContext.Teachers
+                .Where(t => t.Id == teacher.Id)
+                .ExecuteUpdateAsync(t =>
+                t.SetProperty(t => t.GroupsIds, teacher.GroupsIds)
+                );
             await _dbContext.SaveChangesAsync();
         }
         public async Task Delete(Guid id) 

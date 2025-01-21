@@ -15,10 +15,9 @@ namespace TelegramBotEFCore
 {
     internal class Program
     {
-
         static async Task Main(string[] args)
         {
-            string botToken = ConfigurationManager.AppSettings[nameof(botToken)];
+            string botToken = ConfigurationManager.AppSettings[nameof(botToken)] ?? throw new ConfigurationException("botToken");
             var client = new TelegramBotClient(botToken);
             var dbContext = new ApplicationDbContext();
             var usersRepository = new UsersRepository(dbContext);
@@ -33,8 +32,6 @@ namespace TelegramBotEFCore
 
             Console.WriteLine("Нажмите Enter для завершения...");
             Console.ReadLine();
-        }
-
-       
+        }  
     }
 }
