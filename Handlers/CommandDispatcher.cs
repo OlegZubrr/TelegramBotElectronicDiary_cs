@@ -28,6 +28,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly TeachersRepository _teachersRepository;
         private readonly UserRoleService _userRoleService;
         private readonly GroupsRepository _groupsRepository;
+        private readonly SubjectsRepository _subjectsRepository;
 
         public CommandDispatcher
             (
@@ -36,7 +37,8 @@ namespace TelegramBotEFCore.Handlers
             UsersRepository usersRepository,
             TeachersRepository teachersRepository,
             UserRoleService userRoleService,
-            GroupsRepository groupsRepository
+            GroupsRepository groupsRepository,
+            SubjectsRepository subjectsRepository
             ) 
         {
             _botClient = botClient;
@@ -45,6 +47,7 @@ namespace TelegramBotEFCore.Handlers
             _teachersRepository = teachersRepository;
             _userRoleService = userRoleService;
             _groupsRepository = groupsRepository;
+            _subjectsRepository = subjectsRepository;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
@@ -52,13 +55,16 @@ namespace TelegramBotEFCore.Handlers
                 {"/becomeStudent",new BecomeStudentHandler(botClient)},
                 {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"/addGroup",new AddGroupHandler(botClient)},
-                {"/getGroups",new GetGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository) }
+                {"/getGroups",new GetGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository) },
+                {"/addSubject",new AddSubjectHandler(botClient)},
+
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {
                 {UserState.BecomingTeacher,new BecomingTeacherHandler(botClient,userRoleVerificationRepository,usersRepository,teachersRepository) },
                 {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) },
-                {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) }
+                {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) },
+                {UserState.GettingSubjectData,new GettingSubjectDataHandler(botClient,subjectsRepository,usersRepository,teachersRepository,groupsRepository) }
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {

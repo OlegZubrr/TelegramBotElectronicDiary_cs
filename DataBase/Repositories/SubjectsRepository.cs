@@ -13,7 +13,7 @@ namespace TelegramBotEFCore.DataBase.Repositories
     {
         ApplicationDbContext _dbContext;
 
-        SubjectsRepository(ApplicationDbContext dbContext)
+        public SubjectsRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -30,11 +30,17 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
-        public async Task Add(GroupEntity group,Guid id,string name) 
+        public async Task Add(Guid groupId,GroupEntity group,Guid id,string name) 
         {
+            group.SubjectIds.Add(groupId);
+            await _dbContext.Groups
+              .Where(g => g.Id == group.Id)
+              .ExecuteUpdateAsync(s => s
+              .SetProperty(g => g.SubjectIds, group.SubjectIds)
+              );
             var subjectEntity = new SubjectEntity() 
             {
-                Group = group,
+                GroupId = groupId,
                 Id = id,
                 Name = name
             };

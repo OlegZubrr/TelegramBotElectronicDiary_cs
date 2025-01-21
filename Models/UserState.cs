@@ -15,6 +15,7 @@ namespace TelegramBotEFCore.Models
         GettingTeacherData,
         GettiStudentData,
         GettingGroupData,
+        GettingSubjectData,
         Teacher,
         Student
     }

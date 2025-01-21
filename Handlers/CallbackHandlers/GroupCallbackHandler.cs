@@ -42,7 +42,10 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
 
                 await _botClient.SendMessage(
                     chatId: callbackQuery.Message.Chat.Id,
-                    text: $"Вы выбрали группу: {group?.Name}"
+                    text: $"Вы выбрали группу: {group?.Name} \n " +
+                    $"введите \n" +
+                    $"/getSubjects - чтобы получить список предметов \n" +
+                    $"/addSubject - чтобы добавить предмет "
                 );
             }
             else

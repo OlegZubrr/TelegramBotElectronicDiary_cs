@@ -57,8 +57,8 @@ namespace TelegramBotEFCore.DataBase.Repositories
         {
             await _dbContext.Teachers
                 .Where(t => t.Id == id)
-                .ExecuteUpdateAsync(s =>
-                s.SetProperty(t => t.Name, name)
+                .ExecuteUpdateAsync(s => s
+                .SetProperty(t => t.Name, name)
                 .SetProperty(t => t.CurrentGroupId, currentGroupId));
         }
         public async Task AddGroup(TeacherEntity teacher,Guid groupId) 
@@ -69,7 +69,6 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .ExecuteUpdateAsync(t =>
                 t.SetProperty(t => t.GroupsIds, teacher.GroupsIds)
                 );
-            await _dbContext.SaveChangesAsync();
         }
         public async Task Delete(Guid id) 
         {
