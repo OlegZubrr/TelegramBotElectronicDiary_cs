@@ -13,7 +13,7 @@ namespace TelegramBotEFCore.Models
         BecomingTeacher,
         BecomingStudent,
         GettingTeacherData,
-        GettiStudentData,
+        GettingStudentData,
         GettingGroupData,
         GettingSubjectData,
         Teacher,

@@ -7,6 +7,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
+using TelegramBotEFCore.Models;
 
 namespace TelegramBotEFCore.Handlers.CallbackHandlers
 {
@@ -16,45 +17,78 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
         private readonly TeachersRepository _teachersRepository;
         private readonly GroupsRepository _groupsRepository;
         private readonly UsersRepository _usersRepository;
+        private readonly StudentsRepository _studentsRepository;
+
         public GroupCallbackHandler(
             ITelegramBotClient botClient,
             GroupsRepository groupsRepository,
             TeachersRepository teachersRepository,
-            UsersRepository usersRepository) 
+            UsersRepository usersRepository,
+            StudentsRepository studentsRepository) 
         {
             _botClient = botClient;
             _teachersRepository = teachersRepository;
             _groupsRepository = groupsRepository;
             _usersRepository = usersRepository;
+            _studentsRepository = studentsRepository;
         }
-        public async Task HandleCallbackAsync(CallbackQuery callbackQuery)
+        public async Task HandleCallbackAsync(CallbackQuery callbackQuery,Dictionary<long,UserState> userStates)
         {
             var chatId = callbackQuery.Message.Chat.Id;
             var groupId = Guid.Parse(callbackQuery.Data.Replace("group_", ""));
             var user = await _usersRepository.GetByTelegramId(chatId);
-            var teacher = await _teachersRepository.GetByUserId(user.Id);
-
-            if (teacher != null)
+            var group = await _groupsRepository.GetById(groupId);
+            if (group == null) 
             {
-                await _teachersRepository.Update(teacher.Id,teacher.Name,groupId);
-
-                var group = await _groupsRepository.GetById(groupId);
-
-                await _botClient.SendMessage(
-                    chatId: callbackQuery.Message.Chat.Id,
-                    text: $"Вы выбрали группу: {group?.Name} \n " +
-                    $"введите \n" +
-                    $"/getSubjects - чтобы получить список предметов \n" +
-                    $"/addSubject - чтобы добавить предмет "
-                );
+                await _botClient.SendMessage(chatId, "Выбранной вами группы не существует");
+                return;
             }
-            else
+            if (userStates.TryGetValue(chatId, out var state) && state == UserState.Teacher)
             {
-                await _botClient.SendMessage(
-                    chatId: callbackQuery.Message.Chat.Id,
-                    text: "Учитель не найден."
-                );
+                var teacher = await _teachersRepository.GetByUserId(user.Id);
+
+                if (teacher != null)
+                {
+                    await _teachersRepository.Update(teacher.Id, teacher.Name, groupId);
+
+                    await _botClient.SendMessage(
+                        chatId: callbackQuery.Message.Chat.Id,
+                        text: $"Вы выбрали группу: {group?.Name} \n " +
+                        $"введите \n" +
+                        $"/getSubjects - чтобы получить список предметов \n" +
+                        $"/addSubject - чтобы добавить предмет "
+                    );
+                }
+                else
+                {
+                    await _botClient.SendMessage(
+                        chatId: callbackQuery.Message.Chat.Id,
+                        text: "Учитель не найден."
+                    );
+                }
             }
+            else if (state == UserState.Student)
+            {
+                var student = await _studentsRepository.GetByUserId(user.Id);
+                if (student.GroupId != null) 
+                {
+                    await _botClient.SendMessage(chatId, $"Вы не можете вступитьв группу {group.Name} т.к вы уже состоите в группе");
+                    return;
+                }
+                if (group.StudentIds.Contains(student.Id)) 
+                {
+                    await _botClient.SendMessage(chatId, $"Вы уже состоите в группе {group.Name}");
+                    return;
+                }
+                await _studentsRepository.Update(student.Id,user.Id,groupId,student.Name);
+                await _groupsRepository.AddStudent(group, student.Id);
+                await _botClient.SendMessage(chatId,$"Вы успешно вступили в группу {group.Name}");
+            }
+            else 
+            {
+                await _botClient.SendMessage(chatId,"сначало получите роль /getRole");
+            }
+         
         }
     }
 }

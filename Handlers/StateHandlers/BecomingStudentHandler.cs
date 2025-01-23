@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot;
 using TelegramBotEFCore.DataBase.Repositories;
-using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
+using TelegramBotEFCore.Handlers.Interfaces;
 
 namespace TelegramBotEFCore.Handlers.StateHandlers
 {
-    public class BecomingTeacherHandler : IStateHandler
+    public class BecomingStudentHandler:IStateHandler
     {
         private readonly ITelegramBotClient _botClient;
         private readonly UserRoleVerificationRepository _userRoleVerificationRepository;
         private readonly UsersRepository _usersRepository;
 
-        public BecomingTeacherHandler(ITelegramBotClient botClient,
+        public BecomingStudentHandler(ITelegramBotClient botClient,
             UserRoleVerificationRepository userRoleVerificationRepository,
             UsersRepository usersRepository
             )
@@ -38,12 +38,11 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
                 await _botClient.SendMessage(chatId, "неправельный код попробуйте ещё раз");
                 return;
             }
-            userStates[chatId] = UserState.GettingTeacherData;
+            userStates[chatId] = UserState.GettingStudentData;
             await _userRoleVerificationRepository.Delete(userRoleVerification.Id);
             Guid guid = Guid.NewGuid();
             await _botClient.SendMessage(chatId, "Введите своё имя");
 
         }
-
     }
 }

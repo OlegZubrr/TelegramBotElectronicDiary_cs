@@ -11,16 +11,17 @@ using TelegramBotEFCore.Models;
 
 namespace TelegramBotEFCore.Handlers.StateHandlers
 {
-    public class GettingTeacherDataHandler : IStateHandler
+    public class GettingStudentDataHandler:IStateHandler
     {
-        private TeachersRepository _teachersRepository;
+        private StudentsRepository _studentsRepository;
         private UsersRepository _usersRepository;
         private ITelegramBotClient _botClient;
-        public GettingTeacherDataHandler(TeachersRepository teachersRepository, UsersRepository usersRepository, ITelegramBotClient botClient)
+        public GettingStudentDataHandler(ITelegramBotClient botClient,UsersRepository usersRepository ,StudentsRepository studentsRepository)
         {
-            _teachersRepository = teachersRepository;
+           
             _usersRepository = usersRepository;
             _botClient = botClient;
+            _studentsRepository = studentsRepository;
         }
 
         public async Task HandleAsync(Message message, Dictionary<long, UserState> userStates)
@@ -32,13 +33,13 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
             var user = await _usersRepository.GetByTelegramId(chatId);
             var guid = Guid.NewGuid();
 
-            await _teachersRepository.Add(user.Id, guid, name);
-            userStates[chatId] = UserState.Teacher;
+            await _studentsRepository.Add(user.Id, guid, name);
+            userStates[chatId] = UserState.Student;
 
-            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как учитель \n " +
+            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как студент \n" +
                 $"доступные вам команды: \n" +
-                $"/addGroup - добавить группу \n" +
-                $"/getMyGroups - получить ваших групп");
+                $"/getGroups - получить список групп");
         }
+
     }
 }

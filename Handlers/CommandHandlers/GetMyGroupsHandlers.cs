@@ -13,14 +13,14 @@ using TelegramBotEFCore.Models;
 
 namespace TelegramBotEFCore.Handlers.CommandHandlers
 {
-    public class GetGroupsHandlers:IMessageHandler
+    public class GetMyGroupsHandlers:IMessageHandler
     {
         private ITelegramBotClient _botClient;
         private UsersRepository _usersRepository;
         private TeachersRepository _teachersRepository;
         private GroupsRepository _groupsRepository;
 
-        public GetGroupsHandlers(
+        public GetMyGroupsHandlers(
             ITelegramBotClient botClient,
             UsersRepository usersRepository,
             TeachersRepository teachersRepository,

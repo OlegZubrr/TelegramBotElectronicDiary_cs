@@ -48,7 +48,7 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
             userStates[chatId] = UserState.Teacher;
             if (teacher.CurrentGroupId == null)
             {
-                await _botClient.SendMessage(chatId,"Вы не выбрали группу \nвведите /getGroups чтобы сделать это");
+                await _botClient.SendMessage(chatId,"Вы не выбрали группу \nвведите /getMyGroups чтобы сделать это");
 
                 return;
             }

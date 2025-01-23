@@ -32,9 +32,10 @@ namespace TelegramBotEFCore.DataBase.Repositories
         public async Task<List<GroupEntity>> GetByIds(List<Guid> groupIds)
         {
             if (groupIds == null || groupIds.Count == 0)
-                return new List<GroupEntity>(); //
+                return new List<GroupEntity>(); 
 
             return await _dbContext.Groups
+                .AsNoTracking()
                 .Where(g => groupIds.Contains(g.Id)) 
                 .ToListAsync();
         }
@@ -49,6 +50,15 @@ namespace TelegramBotEFCore.DataBase.Repositories
             };
             await _dbContext.AddAsync(groupEntity);
             await _dbContext.SaveChangesAsync();    
+        }
+        public async Task AddStudent(GroupEntity group, Guid studentId)
+        {
+            group.StudentIds.Add(studentId);
+            await _dbContext.Groups
+                .Where(g => g.Id == group.Id)
+                .ExecuteUpdateAsync(s => s
+                .SetProperty(g => g.StudentIds,group.StudentIds)
+                );
         }
         public async Task Delete(Guid id) 
         {

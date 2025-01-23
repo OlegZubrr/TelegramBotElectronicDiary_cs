@@ -27,7 +27,8 @@ namespace TelegramBotEFCore
             var userRoleService = new UserRoleService(usersRepository, teacherRepository, studentsRepository);
             var groupRepository = new GroupsRepository(dbContext);
             var subjectRepository = new SubjectsRepository(dbContext);
-            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository, teacherRepository, userRoleService, groupRepository,subjectRepository);
+            var studentRepository = new StudentsRepository(dbContext);
+            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository, teacherRepository, userRoleService, groupRepository, subjectRepository,studentsRepository);
             var telegramBot = new TelegramBot(botToken, commandDispatcher, usersRepository);
             telegramBot.Start();
 

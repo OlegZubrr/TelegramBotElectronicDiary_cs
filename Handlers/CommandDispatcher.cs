@@ -29,6 +29,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly UserRoleService _userRoleService;
         private readonly GroupsRepository _groupsRepository;
         private readonly SubjectsRepository _subjectsRepository;
+        private readonly StudentsRepository _studentsRepository;
 
         public CommandDispatcher
             (
@@ -38,7 +39,8 @@ namespace TelegramBotEFCore.Handlers
             TeachersRepository teachersRepository,
             UserRoleService userRoleService,
             GroupsRepository groupsRepository,
-            SubjectsRepository subjectsRepository
+            SubjectsRepository subjectsRepository,
+            StudentsRepository studentsRepository
             ) 
         {
             _botClient = botClient;
@@ -48,27 +50,32 @@ namespace TelegramBotEFCore.Handlers
             _userRoleService = userRoleService;
             _groupsRepository = groupsRepository;
             _subjectsRepository = subjectsRepository;
+            _studentsRepository = studentsRepository;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
                 {"/getRole",new GetRoleCommandHandler(botClient)},
-                {"/becomeStudent",new BecomeStudentHandler(botClient)},
+                {"/becomeStudent",new BecomeStudentHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"/addGroup",new AddGroupHandler(botClient)},
-                {"/getGroups",new GetGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository) },
+                {"/getMyGroups",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository) },
                 {"/addSubject",new AddSubjectHandler(botClient)},
+                {"/getSubjects",new GetSubjectsHandler(botClient,usersRepository,teachersRepository,groupsRepository,subjectsRepository)},
+                {"/getGroups",new GetGroupsHandler(botClient,groupsRepository)},
 
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {
-                {UserState.BecomingTeacher,new BecomingTeacherHandler(botClient,userRoleVerificationRepository,usersRepository,teachersRepository) },
+                {UserState.BecomingTeacher,new BecomingTeacherHandler(botClient,userRoleVerificationRepository,usersRepository) },
+                {UserState.BecomingStudent,new BecomingStudentHandler(botClient,userRoleVerificationRepository,usersRepository) },
                 {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) },
+                {UserState.GettingStudentData,new GettingStudentDataHandler(botClient,usersRepository,studentsRepository) },
                 {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) },
                 {UserState.GettingSubjectData,new GettingSubjectDataHandler(botClient,subjectsRepository,usersRepository,teachersRepository,groupsRepository) }
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {
-                { "group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository) }
+                { "group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository) }
             };
         }
         public async Task DispatchAsync(Message message) 
@@ -110,7 +117,7 @@ namespace TelegramBotEFCore.Handlers
             var handlerEntry = _callbackHandlers.FirstOrDefault(h => callbackQuery.Data.StartsWith(h.Key));
             if (handlerEntry.Value != null)
             {
-                await handlerEntry.Value.HandleCallbackAsync(callbackQuery);
+                await handlerEntry.Value.HandleCallbackAsync(callbackQuery,_userStates);
             }
         }
         private async Task HandleUnknownCommand(Message message)
