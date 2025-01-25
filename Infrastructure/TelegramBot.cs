@@ -35,19 +35,36 @@ namespace TelegramBotEFCore.Infrastructure
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var message = update.Message;
+            long chatId = 1;
+            string userName = "";
             var callbackQuery = update.CallbackQuery;
+            if (callbackQuery == null && message == null)
+            {
+                return;
+            }
+            if (callbackQuery != null)
+            {
+                chatId = callbackQuery.Message.Chat.Id;
+                userName = callbackQuery.Message.Chat.Username;
+            }
+            else if (message != null)
+            {
+                chatId = message.Chat.Id;
+                userName = message.Chat.Username;   
+            }
+            var user = await _usersRepository.GetOrAddUserAsync(chatId,userName);
             if (callbackQuery != null)
             {
                 await _commandDispatcher.HandleCallbackQueryAsync(callbackQuery);
+
             }
-            else if (message.Text != null) 
+            else if (message.Text != null)
             {
-                var user = await _usersRepository.GetOrAddUserAsync(message.Chat.Id, message.Chat.Username);
+
                 await _commandDispatcher.DispatchAsync(message);
             }
 
-
-
+            
         }
         private static async Task HandleErrorAsync(ITelegramBotClient client, Exception exception, HandleErrorSource source, CancellationToken token)
         {

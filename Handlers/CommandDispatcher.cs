@@ -30,6 +30,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly GroupsRepository _groupsRepository;
         private readonly SubjectsRepository _subjectsRepository;
         private readonly StudentsRepository _studentsRepository;
+        private readonly MarksRepository _marksRepository;
 
         public CommandDispatcher
             (
@@ -40,7 +41,8 @@ namespace TelegramBotEFCore.Handlers
             UserRoleService userRoleService,
             GroupsRepository groupsRepository,
             SubjectsRepository subjectsRepository,
-            StudentsRepository studentsRepository
+            StudentsRepository studentsRepository,
+            MarksRepository marksRepository
             ) 
         {
             _botClient = botClient;
@@ -51,6 +53,7 @@ namespace TelegramBotEFCore.Handlers
             _groupsRepository = groupsRepository;
             _subjectsRepository = subjectsRepository;
             _studentsRepository = studentsRepository;
+            _marksRepository = marksRepository;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
@@ -58,9 +61,9 @@ namespace TelegramBotEFCore.Handlers
                 {"/becomeStudent",new BecomeStudentHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"/addGroup",new AddGroupHandler(botClient)},
-                {"/getMyGroups",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository) },
+                {"/getMyGroups",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
                 {"/addSubject",new AddSubjectHandler(botClient)},
-                {"/getSubjects",new GetSubjectsHandler(botClient,usersRepository,teachersRepository,groupsRepository,subjectsRepository)},
+                {"/getSubjects",new GetSubjectsHandler(botClient,usersRepository,teachersRepository,groupsRepository,subjectsRepository,studentsRepository)},
                 {"/getGroups",new GetGroupsHandler(botClient,groupsRepository)},
 
             };
@@ -75,7 +78,10 @@ namespace TelegramBotEFCore.Handlers
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {
-                { "group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository) }
+                {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository) },
+                {"subject_",new SubjectCallbackHandler(botClient,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
+                {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository) },
+                {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository) },
             };
         }
         public async Task DispatchAsync(Message message) 
@@ -84,7 +90,6 @@ namespace TelegramBotEFCore.Handlers
             {
                 return;
             }
-
             var userId = message.Chat.Id;
 
             if (!_userStates.TryGetValue(userId, out var currentState))
@@ -113,6 +118,16 @@ namespace TelegramBotEFCore.Handlers
             {
                 return;
             }
+            Console.WriteLine(callbackQuery.Data);
+            var chatId = callbackQuery.Message.Chat.Id;
+
+            if (!_userStates.TryGetValue(chatId, out var currentState))
+            {
+                currentState = await _userRoleService.GetState(chatId);
+                _userStates[chatId] = currentState;
+            }
+            Console.WriteLine(currentState);
+
             var callbackData = callbackQuery.Data;
             var handlerEntry = _callbackHandlers.FirstOrDefault(h => callbackQuery.Data.StartsWith(h.Key));
             if (handlerEntry.Value != null)

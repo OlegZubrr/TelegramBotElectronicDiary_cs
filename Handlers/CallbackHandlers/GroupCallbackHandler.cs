@@ -49,10 +49,10 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
 
                 if (teacher != null)
                 {
-                    await _teachersRepository.Update(teacher.Id, teacher.Name, groupId);
+                    await _teachersRepository.Update(teacher.Id, teacher.Name, groupId,teacher.CurrentSubjectId,teacher.CurrentStudentId);
 
                     await _botClient.SendMessage(
-                        chatId: callbackQuery.Message.Chat.Id,
+                        chatId: chatId,
                         text: $"Вы выбрали группу: {group?.Name} \n " +
                         $"введите \n" +
                         $"/getSubjects - чтобы получить список предметов \n" +
@@ -62,7 +62,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 else
                 {
                     await _botClient.SendMessage(
-                        chatId: callbackQuery.Message.Chat.Id,
+                        chatId: chatId,
                         text: "Учитель не найден."
                     );
                 }
@@ -73,11 +73,6 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 if (student.GroupId != null) 
                 {
                     await _botClient.SendMessage(chatId, $"Вы не можете вступитьв группу {group.Name} т.к вы уже состоите в группе");
-                    return;
-                }
-                if (group.StudentIds.Contains(student.Id)) 
-                {
-                    await _botClient.SendMessage(chatId, $"Вы уже состоите в группе {group.Name}");
                     return;
                 }
                 await _studentsRepository.Update(student.Id,user.Id,groupId,student.Name);

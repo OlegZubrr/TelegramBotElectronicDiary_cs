@@ -36,6 +36,16 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.UserId == userId);
         }
+        public async Task<List<StudentEntity>> GetByIds(List<Guid> groupIds)
+        {
+            if (groupIds == null || groupIds.Count == 0)
+                return new List<StudentEntity>();
+
+            return await _dbContext.Students
+                .AsNoTracking()
+                .Where(s => groupIds.Contains(s.Id))
+                .ToListAsync();
+        }
         public async Task Update(Guid id, Guid userId,Guid groupId,string name)
         {
             await _dbContext.Students

@@ -22,10 +22,19 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
         {
             var chatId = message.Chat.Id;
 
-            userStates[chatId] = UserState.WaitingForRole;
+            if (userStates.TryGetValue(chatId, out var state) && state == UserState.None || state == UserState.WaitingForRole) 
+            {
+                userStates[chatId] = UserState.WaitingForRole;
+                string responce = $"напишите {"\n"}/becomeStudent - чтобы стать учеником {"\n"}/becomeTeacher - чтобы стать учителем";
+                await _botClient.SendMessage(message.Chat.Id, responce);
+            }
+            else 
+            {
+                await _botClient.SendMessage(chatId, "сейчас вы не можит сделать это");
+            }
+            
 
-            string responce = $"напишите {"\n"}/becomeStudent - чтобы стать учеником {"\n"}/becomeTeacher - чтобы стать учителем";
-            await _botClient.SendMessage(message.Chat.Id, responce);
+            
         }
     }
 }

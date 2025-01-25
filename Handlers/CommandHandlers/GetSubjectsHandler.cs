@@ -21,27 +21,30 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
         private TeachersRepository _teachersRepository;
         private GroupsRepository _groupsRepository;
         private SubjectsRepository _subjectsRepository;
+        private StudentsRepository _studentsRepository;
 
         public GetSubjectsHandler(
             ITelegramBotClient botClient, 
             UsersRepository usersRepository, 
             TeachersRepository teachersRepository,
             GroupsRepository groupsRepository,
-            SubjectsRepository subjectsRepository)
+            SubjectsRepository subjectsRepository,
+            StudentsRepository studentsRepository)
         {
             _botClient = botClient;
             _usersRepository = usersRepository;
             _teachersRepository = teachersRepository;
             _groupsRepository = groupsRepository;
             _subjectsRepository = subjectsRepository;
+            _studentsRepository = studentsRepository;
         }
 
         public async Task HandleMessageAsync(Message message, Dictionary<long, UserState> userStates)
         {
             var chatId = message.Chat.Id;
+            var user = await _usersRepository.GetByTelegramId(chatId);
             if (userStates.TryGetValue(chatId, out var state) && state == UserState.Teacher)
             {
-                var user = await _usersRepository.GetByTelegramId(chatId);
                 var teacher = await _teachersRepository.GetByUserId(user.Id);
                 if (teacher.CurrentGroupId == null)
                 {
@@ -58,6 +61,29 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
                 }
                 var subjects = await _subjectsRepository.GetByIds(group.SubjectIds);
                 await SendSubjecysInlineKeyboardAsync(subjects,chatId);
+            }
+            else if (state == UserState.Student) 
+            {
+                var student = await _studentsRepository.GetByUserId(user.Id);
+                if (student == null) 
+                {
+                    await _botClient.SendMessage(chatId,"студент не найден");
+                    return;
+                }
+                if (student.GroupId == null) 
+                {
+                    await _botClient.SendMessage(chatId, "Вы не выбрали группу \nвведите /getGroups чтобы сделать это");
+                    return;
+                }
+                var groupId = (Guid)student.GroupId;
+                var group = await _groupsRepository.GetById(groupId);
+                if (group == null)
+                {
+                    await _botClient.SendMessage(chatId, "Выбранной группы не существует");
+                    return;
+                }
+                var subjects = await _subjectsRepository.GetByIds(group.SubjectIds);
+                await SendSubjecysInlineKeyboardAsync(subjects, chatId);
             }
             else 
             {

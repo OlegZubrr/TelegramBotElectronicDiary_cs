@@ -28,13 +28,21 @@ namespace TelegramBotEFCore.DataBase.Repositories
             return await _dbContext.Marks
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
-        } 
-        public async Task Add(StudentEntity student,SubjectEntity subject,Guid id,int value) 
+        }
+        public async Task<List<MarkEntity?>> GetByStudentAndSubjectId(Guid studentId, Guid subjectId)
+        {
+            return await _dbContext.Marks
+                .AsNoTracking()
+                .Where(mark => mark.StudentId == studentId && mark.SubjectId == subjectId)
+                .ToListAsync();
+        }
+
+        public async Task Add(Guid studentId,Guid subjectId,Guid id,int value) 
         {
             MarkEntity  markEntity = new MarkEntity() 
             {
-                Student = student,
-                Subject = subject,
+                StudentId = studentId,
+                SubjectId = subjectId,
                 Id = id,
                 Value = value
             };

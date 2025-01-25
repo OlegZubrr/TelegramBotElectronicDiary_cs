@@ -15,5 +15,7 @@ namespace TelegramBotEFCore.DataBase.Models
         public List<GroupEntity> Groups { get; set; } = [];
         public List<Guid> GroupsIds { get; set; } = [];
         public Guid? CurrentGroupId { get; set; }
+        public Guid? CurrentSubjectId { get; set; }
+        public Guid? CurrentStudentId { get; set; }
     }
 }

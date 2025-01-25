@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TelegramBotEFCore.DataBase;
 
@@ -11,9 +12,11 @@ using TelegramBotEFCore.DataBase;
 namespace TelegramBotEFCore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250123191126_add currentGroupId to teacherEntity")]
+    partial class addcurrentGroupIdtoteacherEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,9 +129,6 @@ namespace TelegramBotEFCore.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<Guid?>("CurrentGroupId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("CurrentStudentId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid?>("CurrentSubjectId")

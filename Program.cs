@@ -28,12 +28,12 @@ namespace TelegramBotEFCore
             var groupRepository = new GroupsRepository(dbContext);
             var subjectRepository = new SubjectsRepository(dbContext);
             var studentRepository = new StudentsRepository(dbContext);
-            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository, teacherRepository, userRoleService, groupRepository, subjectRepository,studentsRepository);
+            var marksRepository = new MarksRepository(dbContext);
+            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository, teacherRepository, userRoleService, groupRepository, subjectRepository, studentsRepository, marksRepository);
             var telegramBot = new TelegramBot(botToken, commandDispatcher, usersRepository);
             telegramBot.Start();
-
             Console.WriteLine("Нажмите Enter для завершения...");
             Console.ReadLine();
-        }  
+        }
     }
 }

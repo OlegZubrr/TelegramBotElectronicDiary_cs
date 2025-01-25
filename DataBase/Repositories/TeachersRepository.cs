@@ -53,13 +53,15 @@ namespace TelegramBotEFCore.DataBase.Repositories
             await _dbContext.AddAsync(teacherEntity);
             await _dbContext.SaveChangesAsync();
         }
-        public async Task Update(Guid id,string name,Guid currentGroupId) 
+        public async Task Update(Guid id,string name,Guid? currentGroupId,Guid? currentSubjectId,Guid? currentStudentId) 
         {
             await _dbContext.Teachers
                 .Where(t => t.Id == id)
                 .ExecuteUpdateAsync(s => s
-                .SetProperty(t => t.Name, name)
-                .SetProperty(t => t.CurrentGroupId, currentGroupId));
+                    .SetProperty(t => t.Name, name)
+                    .SetProperty(t => t.CurrentSubjectId, currentSubjectId)
+                    .SetProperty(t => t.CurrentStudentId, currentStudentId)
+                    .SetProperty(t => t.CurrentGroupId, currentGroupId));
         }
         public async Task AddGroup(TeacherEntity teacher,Guid groupId) 
         {
