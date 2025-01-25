@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
 
@@ -25,8 +26,19 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
             if (userStates.TryGetValue(chatId, out var state) && state == UserState.None || state == UserState.WaitingForRole) 
             {
                 userStates[chatId] = UserState.WaitingForRole;
-                string responce = $"напишите {"\n"}/becomeStudent - чтобы стать учеником {"\n"}/becomeTeacher - чтобы стать учителем";
-                await _botClient.SendMessage(message.Chat.Id, responce);
+                var inlineKeyboard = new InlineKeyboardMarkup(new[]
+                {
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Стать учеником", "becomeStudent"),
+                        InlineKeyboardButton.WithCallbackData("Стать преподавателем", "becomeTeacher")
+                    }
+                });
+                await _botClient.SendMessage(
+                    chatId: message.Chat.Id,
+                    text: "Выберите действие:",
+                     replyMarkup: inlineKeyboard
+                    );
             }
             else 
             {

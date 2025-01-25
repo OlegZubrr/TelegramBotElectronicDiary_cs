@@ -58,8 +58,7 @@ namespace TelegramBotEFCore.Handlers
             {
                 {"/start",new StartCommandHandler(botClient)},
                 {"/getRole",new GetRoleCommandHandler(botClient)},
-                {"/becomeStudent",new BecomeStudentHandler(botClient,userRoleVerificationRepository,usersRepository)},
-                {"/becomeTeacher",new BecomeTeacherHandler(botClient,userRoleVerificationRepository,usersRepository)},
+               
                 {"/addGroup",new AddGroupHandler(botClient)},
                 {"/getMyGroups",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
                 {"/addSubject",new AddSubjectHandler(botClient)},
@@ -69,8 +68,7 @@ namespace TelegramBotEFCore.Handlers
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {
-                {UserState.BecomingTeacher,new BecomingTeacherHandler(botClient,userRoleVerificationRepository,usersRepository) },
-                {UserState.BecomingStudent,new BecomingStudentHandler(botClient,userRoleVerificationRepository,usersRepository) },
+                
                 {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) },
                 {UserState.GettingStudentData,new GettingStudentDataHandler(botClient,usersRepository,studentsRepository) },
                 {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) },
@@ -82,6 +80,10 @@ namespace TelegramBotEFCore.Handlers
                 {"subject_",new SubjectCallbackHandler(botClient,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository) },
+                {"cancel_",new GettingRoleCallbackHandler(botClient,usersRepository) },
+                {"accept_",new GettingRoleCallbackHandler(botClient,usersRepository) },
+                {"becomeStudent",new BecomeStudentCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
+                {"becomeTeacher",new BecomeTeacherCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
             };
         }
         public async Task DispatchAsync(Message message) 
