@@ -33,6 +33,10 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
                     {
                         new KeyboardButton("Получить список предметов")
                     },
+                    new[]
+                    {
+                        new KeyboardButton("Покинуть группу")
+                    },
               })
             {
                 ResizeKeyboard = true

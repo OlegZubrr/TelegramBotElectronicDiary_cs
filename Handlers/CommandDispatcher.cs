@@ -62,6 +62,7 @@ namespace TelegramBotEFCore.Handlers
                 {"Получить список моих групп",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
                 {"Добавить предмет",new AddSubjectHandler(botClient)},
                 {"Получить список всех групп",new GetGroupsHandler(botClient,groupsRepository)},
+                {"Покинуть группу",new LeaveGroupMessageHandler(botClient,usersRepository,studentsRepository,groupsRepository)},
 
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>

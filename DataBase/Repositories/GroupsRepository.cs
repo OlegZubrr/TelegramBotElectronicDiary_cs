@@ -60,6 +60,14 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .SetProperty(g => g.StudentIds,group.StudentIds)
                 );
         }
+        public async Task Update(GroupEntity group)
+        {
+            await _dbContext.Groups
+                .Where(g => g.Id == group.Id)
+                .ExecuteUpdateAsync(s => s
+                .SetProperty(g => g.StudentIds, group.StudentIds)
+                );
+        }
         public async Task Delete(Guid id) 
         {
             await _dbContext.Groups

@@ -46,7 +46,7 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 .Where(s => groupIds.Contains(s.Id))
                 .ToListAsync();
         }
-        public async Task Update(Guid id, Guid userId,Guid groupId,string name)
+        public async Task Update(Guid id, Guid userId,Guid? groupId,string name)
         {
             await _dbContext.Students
                 .Where(s=> s.Id == id)
