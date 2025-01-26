@@ -41,7 +41,7 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
             string responce = "";
             if (state == UserState.Teacher)
             {
-                responce = "T";
+                responce = "";
             }
             var inlineKeyboard = new InlineKeyboardMarkup(
                 groups.Select(g => InlineKeyboardButton.WithCallbackData(

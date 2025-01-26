@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
+using TelegramBotEFCore.DataBase.Models;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
@@ -18,19 +20,22 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
         private readonly GroupsRepository _groupsRepository;
         private readonly UsersRepository _usersRepository;
         private readonly StudentsRepository _studentsRepository;
+        private readonly SubjectsRepository _subjectsRepository;
 
         public GroupCallbackHandler(
             ITelegramBotClient botClient,
             GroupsRepository groupsRepository,
             TeachersRepository teachersRepository,
             UsersRepository usersRepository,
-            StudentsRepository studentsRepository) 
+            StudentsRepository studentsRepository,
+            SubjectsRepository subjectsRepository) 
         {
             _botClient = botClient;
             _teachersRepository = teachersRepository;
             _groupsRepository = groupsRepository;
             _usersRepository = usersRepository;
             _studentsRepository = studentsRepository;
+            _subjectsRepository = subjectsRepository;
         }
         public async Task HandleCallbackAsync(CallbackQuery callbackQuery,Dictionary<long,UserState> userStates)
         {
@@ -50,11 +55,8 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 if (teacher != null)
                 {
                     await _teachersRepository.Update(teacher.Id, teacher.Name, groupId,teacher.CurrentSubjectId,teacher.CurrentStudentId);
-
-                    await _botClient.SendMessage(
-                        chatId: chatId,
-                        text: $"Вы выбрали группу: {group?.Name} \n "
-                    );
+                    var subjects = await _subjectsRepository.GetByIds(group.SubjectIds);
+                    await SendSubjecysInlineKeyboard(subjects, chatId,group.Name);
                 }
                 else
                 {
@@ -81,6 +83,21 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 await _botClient.SendMessage(chatId,"сначало получите роль /getRole");
             }
          
+        }
+        private async Task SendSubjecysInlineKeyboard(List<SubjectEntity> subjects, long chatId,string groupName)
+        {
+            var inlineKeyboard = new InlineKeyboardMarkup(
+                subjects.Select(s => InlineKeyboardButton.WithCallbackData(
+                    text: s.Name,
+                    callbackData: $"subject_{s.Id}"
+                )).Chunk(1)
+            );
+
+            await _botClient.SendMessage(
+                chatId: chatId,
+                text: $"Вы выбрали группу {groupName}\nВыберите предмет:",
+                replyMarkup: inlineKeyboard
+            );
         }
     }
 }

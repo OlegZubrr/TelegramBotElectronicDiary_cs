@@ -58,10 +58,9 @@ namespace TelegramBotEFCore.Handlers
             {
                 {"/start",new StartCommandHandler(botClient)},
                 {"/getRole",new GetRoleCommandHandler(botClient)},
-                {"/addGroup",new AddGroupHandler(botClient)},
+                {"Добавить группу",new AddGroupHandler(botClient)},
                 {"Получить список моих групп",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
                 {"Добавить предмет",new AddSubjectHandler(botClient)},
-                {"Получить список предметов",new GetSubjectsHandler(botClient,usersRepository,teachersRepository,groupsRepository,subjectsRepository,studentsRepository)},
                 {"Получить список всех групп",new GetGroupsHandler(botClient,groupsRepository)},
 
             };
@@ -77,7 +76,7 @@ namespace TelegramBotEFCore.Handlers
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {
-                {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository) },
+                {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository) },
                 {"subject_",new SubjectCallbackHandler(botClient,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository) },
