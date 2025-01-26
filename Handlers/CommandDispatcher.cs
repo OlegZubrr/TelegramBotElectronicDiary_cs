@@ -58,12 +58,11 @@ namespace TelegramBotEFCore.Handlers
             {
                 {"/start",new StartCommandHandler(botClient)},
                 {"/getRole",new GetRoleCommandHandler(botClient)},
-               
                 {"/addGroup",new AddGroupHandler(botClient)},
-                {"/getMyGroups",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
-                {"/addSubject",new AddSubjectHandler(botClient)},
-                {"/getSubjects",new GetSubjectsHandler(botClient,usersRepository,teachersRepository,groupsRepository,subjectsRepository,studentsRepository)},
-                {"/getGroups",new GetGroupsHandler(botClient,groupsRepository)},
+                {"Получить список моих групп",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
+                {"Добавить предмет",new AddSubjectHandler(botClient)},
+                {"Получить список предметов",new GetSubjectsHandler(botClient,usersRepository,teachersRepository,groupsRepository,subjectsRepository,studentsRepository)},
+                {"Получить список всех групп",new GetGroupsHandler(botClient,groupsRepository)},
 
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
@@ -72,7 +71,8 @@ namespace TelegramBotEFCore.Handlers
                 {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) },
                 {UserState.GettingStudentData,new GettingStudentDataHandler(botClient,usersRepository,studentsRepository) },
                 {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) },
-                {UserState.GettingSubjectData,new GettingSubjectDataHandler(botClient,subjectsRepository,usersRepository,teachersRepository,groupsRepository) }
+                {UserState.GettingSubjectData,new GettingSubjectDataHandler(botClient,subjectsRepository,usersRepository,teachersRepository,groupsRepository) },
+                {UserState.Teacher,new GetTeacherReplyKeyboard(botClient) }
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {

@@ -29,19 +29,24 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
             if (userStates.TryGetValue(chatId, out var state) && state == UserState.Teacher || state == UserState.Student)
             {
                 var groups = await _groupsRepository.Get();
-                await SendGroupsInlineKeyboardAsync(groups, chatId);
+                await SendGroupsInlineKeyboardAsync(groups, chatId,state);
             }
             else 
             {
                 await _botClient.SendMessage(chatId,"Сначало получите роль /getRole");
             }
         }
-        private async Task SendGroupsInlineKeyboardAsync(List<GroupEntity> groups, long chatId)
+        private async Task SendGroupsInlineKeyboardAsync(List<GroupEntity> groups, long chatId,UserState state)
         {
+            string responce = "";
+            if (state == UserState.Teacher)
+            {
+                responce = "T";
+            }
             var inlineKeyboard = new InlineKeyboardMarkup(
                 groups.Select(g => InlineKeyboardButton.WithCallbackData(
                     text: g.Name,
-                    callbackData: $"group_{g.Id}"
+                    callbackData: $"group{responce}_{g.Id}"
                 )).Chunk(1)
             );
 
