@@ -60,7 +60,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 {
                     await _botClient.SendMessage(
                         chatId: chatId,
-                        text: "Учитель не найден."
+                        text: "Преподаватель не найден."
                     );
                 }
             }

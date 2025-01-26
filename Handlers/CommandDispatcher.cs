@@ -72,7 +72,8 @@ namespace TelegramBotEFCore.Handlers
                 {UserState.GettingStudentData,new GettingStudentDataHandler(botClient,usersRepository,studentsRepository) },
                 {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) },
                 {UserState.GettingSubjectData,new GettingSubjectDataHandler(botClient,subjectsRepository,usersRepository,teachersRepository,groupsRepository) },
-                {UserState.Teacher,new GetTeacherReplyKeyboard(botClient) }
+                {UserState.Teacher,new GetTeacherReplyKeyboard(botClient)},
+                {UserState.Student,new GetStudentReplyKeyBoard(botClient)},
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {
