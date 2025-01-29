@@ -31,10 +31,6 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
                     },
                     new[]
                     {
-                        new KeyboardButton("Получить список предметов")
-                    },
-                    new[]
-                    {
                         new KeyboardButton("Покинуть группу")
                     },
               })

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBotEFCore.DataBase.Repositories;
+using TelegramBotEFCore.Extensions;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
 
@@ -28,17 +29,21 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
         {
             if (message == null || message.Text == null) return;
 
-            string name = message.Text;
             var chatId = message.Chat.Id;
+            string name = message.Text;
+            if (!name.IsValidName()) 
+            {
+                await _botClient.SendMessage(chatId, $"Неправельный формат имени попробуйте ещё раз");
+                return;
+            }
+
             var user = await _usersRepository.GetByTelegramId(chatId);
             var guid = Guid.NewGuid();
 
             await _studentsRepository.Add(user.Id, guid, name);
             userStates[chatId] = UserState.Student;
 
-            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как студент \n" +
-                $"доступные вам команды: \n" +
-                $"/getGroups - получить список групп");
+            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как студент \n");
         }
 
     }

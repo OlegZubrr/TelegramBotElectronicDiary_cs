@@ -41,8 +41,10 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
         {
             var chatId = callbackQuery.Message.Chat.Id;
             var groupId = Guid.Parse(callbackQuery.Data.Replace("group_", ""));
+            
             var user = await _usersRepository.GetByTelegramId(chatId);
             var group = await _groupsRepository.GetById(groupId);
+            var subjects = await _subjectsRepository.GetByIds(group.SubjectIds);
             if (group == null) 
             {
                 await _botClient.SendMessage(chatId, "Выбранной вами группы не существует");
@@ -55,7 +57,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 if (teacher != null)
                 {
                     await _teachersRepository.Update(teacher.Id, teacher.Name, groupId,teacher.CurrentSubjectId,teacher.CurrentStudentId);
-                    var subjects = await _subjectsRepository.GetByIds(group.SubjectIds);
+                   
                     await SendSubjecysInlineKeyboard(subjects, chatId,group.Name);
                 }
                 else
@@ -71,7 +73,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 var student = await _studentsRepository.GetByUserId(user.Id);
                 if (student.GroupId != null) 
                 {
-                    await _botClient.SendMessage(chatId, $"Вы не можете вступитьв группу {group.Name} т.к вы уже состоите в группе");
+                    SendSubjecysInlineKeyboard(subjects,chatId,group.Name);
                     return;
                 }
                 await _studentsRepository.Update(student.Id,user.Id,groupId,student.Name);
