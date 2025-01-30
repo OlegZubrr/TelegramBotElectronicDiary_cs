@@ -23,14 +23,15 @@ namespace TelegramBotEFCore.Services
             var inlineKeyboard = new InlineKeyboardMarkup(
                 marks.Select(m => InlineKeyboardButton.WithCallbackData(
                     text: m.Value.ToString(),
-                    callbackData: $"mark_{m.Id}"
+                    callbackData: $"deleteMark_{m.Id}"
                 )).Chunk(1)
             );
             float gpa = (float)marks.Sum(m => m.Value) / marks.Count;
             await _botClient.SendMessage(
                 chatId: chatId,
                 text: $"Отметки студунта {name}: \n" +
-                $"Средний балл {gpa:F2}",
+                $"Средний балл {gpa:F2} \n" +
+                $"🚫 нажмите на отметку чтобы удалить",
                 replyMarkup: inlineKeyboard
             );
         }

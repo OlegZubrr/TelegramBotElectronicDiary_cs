@@ -93,6 +93,11 @@ namespace TelegramBotEFCore.Handlers
                 {"accept_",new GettingRoleCallbackHandler(botClient,usersRepository) },
                 {"becomeStudent",new BecomeStudentCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"becomeTeacher",new BecomeTeacherCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
+                {"deleteMark_",new DeleteMarkCallbackHandler(botClient,marksRepository) },
+                {"acceptDelitingMark_",new DelitingMarkCallbackHandler(botClient,marksRepository,marksServise,usersRepository,teachersRepository,studentsRepository) },
+                {"cancelDelitingMark_",new DelitingMarkCallbackHandler(botClient, marksRepository, marksServise,usersRepository, teachersRepository, studentsRepository) }
+
+                
 
             };
         }

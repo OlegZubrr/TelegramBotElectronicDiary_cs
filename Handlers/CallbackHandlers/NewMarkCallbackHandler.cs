@@ -71,8 +71,6 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             var student = await _studentsRepository.GetById(studentId);
             string studentName = student.Name;
             await _marksServise.SendMarksInlineKeyboard(marks,chatId,studentName);
-
-
         }
     }
 }
