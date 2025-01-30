@@ -45,8 +45,8 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 {
                     new[]
                     {
-                        InlineKeyboardButton.WithCallbackData("принять", $"accept_{user.Id}"),
-                        InlineKeyboardButton.WithCallbackData("отклонить", $"cancel_{user.Id}")
+                        InlineKeyboardButton.WithCallbackData("Принять ✅", $"accept_{user.Id}"),
+                        InlineKeyboardButton.WithCallbackData("Отклонить ❌", $"cancel_{user.Id}")
                     }
                 });
                 await _botClient.SendMessage(

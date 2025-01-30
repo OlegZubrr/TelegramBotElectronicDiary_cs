@@ -11,6 +11,7 @@ using TelegramBotEFCore.DataBase.Models;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
+using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers.CallbackHandlers
 {
@@ -21,13 +22,15 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
         private readonly TeachersRepository _teachersRepository;
         private readonly StudentsRepository _studentsRepository;
         private readonly MarksRepository _marksRepository;
+        private readonly MarksServise _marksServise;
         
         public StudentCallbackHandler(
             ITelegramBotClient botClient,
             UsersRepository usersRepository,
             TeachersRepository teachersRepository,
             StudentsRepository studentsRepository,
-            MarksRepository marksRepository
+            MarksRepository marksRepository,
+            MarksServise marksServise
             ) 
         {
             _botClient = botClient;
@@ -35,13 +38,24 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             _teachersRepository = teachersRepository;
             _studentsRepository = studentsRepository;
             _marksRepository = marksRepository;
+            _marksServise = marksServise;
         }
         public async Task HandleCallbackAsync(CallbackQuery callbackQuery, Dictionary<long, UserState> userStates)
         {
             var chatId = callbackQuery.Message.Chat.Id;
             var studentId = Guid.Parse(callbackQuery.Data.Replace("student_", ""));
             var user = await _usersRepository.GetByTelegramId(chatId);
+            if (user == null) 
+            {
+                await _botClient.SendMessage(chatId,"Пользователь не найден");
+                return;
+            }
             var student = await _studentsRepository.GetById(studentId);
+            if (student == null) 
+            {
+                await _botClient.SendMessage(chatId, "Студент не найден");
+                return;
+            }
             if (student == null)
             {
                 await _botClient.SendMessage(chatId, "студент не найден");
@@ -69,7 +83,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 var marks = await _marksRepository.GetByStudentAndSubjectId(studentId, subjectId);
                 if (marks != null && marks.Count > 0) 
                 {
-                    await SendMarksInlineKeyboard(marks,chatId,student.Name);
+                    await _marksServise.SendMarksInlineKeyboard(marks,chatId,student.Name);
                 }
                 else
                 {
@@ -82,22 +96,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 await _botClient.SendMessage(chatId,"сначало получите роль /getRole");
             }
         }
-        private async Task SendMarksInlineKeyboard(List<MarkEntity> marks, long chatId,string name)
-        {
-            var inlineKeyboard = new InlineKeyboardMarkup(
-                marks.Select(m => InlineKeyboardButton.WithCallbackData(
-                    text: m.Value.ToString(),
-                    callbackData: $"mark_{m.Id}"
-                )).Chunk(1)
-            );
-            float gpa = (float)marks.Sum(m => m.Value) / marks.Count;
-            await _botClient.SendMessage(
-                chatId: chatId,
-                text: $"Отметки студунта {name}: \n" +
-                $"Средний балл {gpa:F2}",
-                replyMarkup: inlineKeyboard
-            );
-        }
+       
         private async Task GetMarksInlineKeyboard(long chatId)
         {
             int[] marks = {0,1,2,3,4,5,6,7,8,9,10};

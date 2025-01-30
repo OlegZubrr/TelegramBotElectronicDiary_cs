@@ -32,6 +32,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly StudentsRepository _studentsRepository;
         private readonly MarksRepository _marksRepository;
         private readonly SubjectsService _subjectsService;
+        private readonly MarksServise _marksServise;
 
         public CommandDispatcher
             (
@@ -44,7 +45,8 @@ namespace TelegramBotEFCore.Handlers
             SubjectsRepository subjectsRepository,
             StudentsRepository studentsRepository,
             MarksRepository marksRepository,
-            SubjectsService subjectsService
+            SubjectsService subjectsService,
+            MarksServise marksServise
             ) 
         {
             _botClient = botClient;
@@ -57,6 +59,7 @@ namespace TelegramBotEFCore.Handlers
             _studentsRepository = studentsRepository;
             _marksRepository = marksRepository;
             _subjectsService = subjectsService;
+            _marksServise = marksServise;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
@@ -84,8 +87,8 @@ namespace TelegramBotEFCore.Handlers
             {
                 {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository,subjectsService) },
                 {"subject_",new SubjectCallbackHandler(botClient,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
-                {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository) },
-                {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository) },
+                {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository,marksServise) },
+                {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository,marksServise,studentsRepository) },
                 {"cancel_",new GettingRoleCallbackHandler(botClient,usersRepository) },
                 {"accept_",new GettingRoleCallbackHandler(botClient,usersRepository) },
                 {"becomeStudent",new BecomeStudentCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
