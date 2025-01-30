@@ -66,6 +66,8 @@ namespace TelegramBotEFCore.Handlers
                 {"Добавить предмет",new AddSubjectHandler(botClient)},
                 {"Получить список всех групп",new GetGroupsHandler(botClient,groupsRepository)},
                 {"Покинуть группу",new LeaveGroupMessageHandler(botClient,usersRepository,studentsRepository,groupsRepository)},
+                {"Получить список предметов",new GetSubjectsMessageHandler(botClient,usersRepository,studentsRepository,teachersRepository,subjectsService,groupsRepository) }
+                
 
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
@@ -88,6 +90,7 @@ namespace TelegramBotEFCore.Handlers
                 {"accept_",new GettingRoleCallbackHandler(botClient,usersRepository) },
                 {"becomeStudent",new BecomeStudentCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
                 {"becomeTeacher",new BecomeTeacherCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
+
             };
         }
         public async Task DispatchAsync(Message message) 
