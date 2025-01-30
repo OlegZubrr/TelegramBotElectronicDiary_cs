@@ -29,7 +29,8 @@ namespace TelegramBotEFCore
             var subjectRepository = new SubjectsRepository(dbContext);
             var studentRepository = new StudentsRepository(dbContext);
             var marksRepository = new MarksRepository(dbContext);
-            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository, teacherRepository, userRoleService, groupRepository, subjectRepository, studentsRepository, marksRepository);
+            var subjectServise = new SubjectsService(client,groupRepository,subjectRepository);
+            var commandDispatcher = new CommandDispatcher(client, userRoleVerificationRepository, usersRepository, teacherRepository, userRoleService, groupRepository, subjectRepository, studentsRepository, marksRepository,subjectServise);
             var telegramBot = new TelegramBot(botToken, commandDispatcher, usersRepository);
             telegramBot.Start();
             Console.WriteLine("Нажмите Enter для завершения...");

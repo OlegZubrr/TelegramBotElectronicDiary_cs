@@ -31,6 +31,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly SubjectsRepository _subjectsRepository;
         private readonly StudentsRepository _studentsRepository;
         private readonly MarksRepository _marksRepository;
+        private readonly SubjectsService _subjectsService;
 
         public CommandDispatcher
             (
@@ -42,7 +43,8 @@ namespace TelegramBotEFCore.Handlers
             GroupsRepository groupsRepository,
             SubjectsRepository subjectsRepository,
             StudentsRepository studentsRepository,
-            MarksRepository marksRepository
+            MarksRepository marksRepository,
+            SubjectsService subjectsService
             ) 
         {
             _botClient = botClient;
@@ -54,6 +56,7 @@ namespace TelegramBotEFCore.Handlers
             _subjectsRepository = subjectsRepository;
             _studentsRepository = studentsRepository;
             _marksRepository = marksRepository;
+            _subjectsService = subjectsService;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
                 {"/start",new StartCommandHandler(botClient)},
@@ -77,7 +80,7 @@ namespace TelegramBotEFCore.Handlers
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {
-                {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository) },
+                {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository,subjectsService) },
                 {"subject_",new SubjectCallbackHandler(botClient,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository) },
