@@ -70,7 +70,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 }
                 if(teacher.CurrentGroupId == null) 
                 {
-                    await _botClient.SendMessage(chatId, "Сначало выберите группу /getMyGroups");
+                    await _botClient.SendMessage(chatId, "Сначало выберите группу");
                     return;
                 }
                 if (teacher.CurrentSubjectId == null)
@@ -89,7 +89,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 {
                     await _botClient.SendMessage(chatId, "У студента ещё нету отметок по этому предмету");
                 }
-                await GetMarksInlineKeyboard(chatId);
+                await _marksServise.SendNewMarksInlineKeyboard(chatId);
             }
             else
             {
@@ -97,21 +97,6 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             }
         }
        
-        private async Task GetMarksInlineKeyboard(long chatId)
-        {
-            int[] marks = {0,1,2,3,4,5,6,7,8,9,10};
-            var inlineKeyboard = new InlineKeyboardMarkup(
-               marks.Select(m => InlineKeyboardButton.WithCallbackData(
-                   text: m.ToString(),
-                   callbackData: $"newMark_{m}"
-               )).Chunk(3)
-           );
-
-            await _botClient.SendMessage(
-              chatId: chatId,
-              text: "Нажмите чтобы добавить отметку:",
-              replyMarkup: inlineKeyboard
-          );
-        }
+       
     }
 }

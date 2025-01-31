@@ -66,7 +66,6 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
 
             await _marksRepository.Add(studentId, subjectId, guid,markVal);
 
-            await _botClient.SendMessage(chatId, $"Отметка {markVal} была добавлена студенту");
             var marks = await _marksRepository.GetByStudentAndSubjectId(studentId, subjectId);
             var student = await _studentsRepository.GetById(studentId);
             string studentName = student.Name;

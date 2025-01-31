@@ -73,8 +73,6 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 return;
             }
 
-            
-
             var splitedCallback = callbackQuery.Data.Split('_');
             string asnwer = splitedCallback[0];
             Guid markId = Guid.Parse(splitedCallback[1]);

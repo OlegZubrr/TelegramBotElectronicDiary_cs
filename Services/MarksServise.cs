@@ -35,5 +35,21 @@ namespace TelegramBotEFCore.Services
                 replyMarkup: inlineKeyboard
             );
         }
+        public async Task SendNewMarksInlineKeyboard(long chatId)
+        {
+            int[] marks = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var inlineKeyboard = new InlineKeyboardMarkup(
+               marks.Select(m => InlineKeyboardButton.WithCallbackData(
+                   text: m.ToString(),
+                   callbackData: $"newMark_{m}"
+               )).Chunk(3)
+           );
+
+            await _botClient.SendMessage(
+              chatId: chatId,
+              text: "Нажмите чтобы добавить отметку:",
+              replyMarkup: inlineKeyboard
+          );
+        }
     }
 }
