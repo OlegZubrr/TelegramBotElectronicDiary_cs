@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TelegramBotEFCore.DataBase;
 
@@ -11,9 +12,11 @@ using TelegramBotEFCore.DataBase;
 namespace TelegramBotEFCore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250202145859_delete teacher and student message entities and add message entity")]
+    partial class deleteteacherandstudentmessageentitiesandaddmessageentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,28 +75,6 @@ namespace TelegramBotEFCore.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("Marks");
-                });
-
-            modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.MessageEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<long>("ChatId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("MessageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MessageEntities");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.StudentEntity", b =>
@@ -234,17 +215,6 @@ namespace TelegramBotEFCore.Migrations
                     b.Navigation("Student");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.MessageEntity", b =>
-                {
-                    b.HasOne("TelegramBotEFCore.DataBase.Models.UserEntity", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.StudentEntity", b =>

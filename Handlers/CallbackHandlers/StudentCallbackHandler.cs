@@ -83,13 +83,13 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 var marks = await _marksRepository.GetByStudentAndSubjectId(studentId, subjectId);
                 if (marks != null && marks.Count > 0) 
                 {
-                    await _marksServise.SendMarksInlineKeyboard(marks,chatId,student.Name);
+                    var marksMessageId = await _marksServise.SendMarksInlineKeyboard(marks,chatId,student.Name);
                 }
                 else
                 {
                     await _botClient.SendMessage(chatId, "У студента ещё нету отметок по этому предмету");
                 }
-                await _marksServise.SendNewMarksInlineKeyboard(chatId);
+                var NewMarksMessageId = await _marksServise.SendNewMarksInlineKeyboard(chatId);
             }
             else
             {
