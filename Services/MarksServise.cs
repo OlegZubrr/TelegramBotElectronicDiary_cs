@@ -18,7 +18,7 @@ namespace TelegramBotEFCore.Services
             _botClient = botClient;
         }
 
-        public async Task SendMarksInlineKeyboard(List<MarkEntity> marks, long chatId, string name)
+        public async Task<long> SendMarksInlineKeyboard(List<MarkEntity> marks, long chatId, string name)
         {
             var inlineKeyboard = new InlineKeyboardMarkup(
                 marks.Select(m => InlineKeyboardButton.WithCallbackData(
@@ -26,30 +26,38 @@ namespace TelegramBotEFCore.Services
                     callbackData: $"deleteMark_{m.Id}"
                 )).Chunk(1)
             );
+
             float gpa = (float)marks.Sum(m => m.Value) / marks.Count;
-            await _botClient.SendMessage(
+
+            var sentMessage = await _botClient.SendMessage(
                 chatId: chatId,
-                text: $"Отметки студунта {name}: \n" +
-                $"Средний балл {gpa:F2} \n" +
-                $"🚫 нажмите на отметку чтобы удалить",
+                text: $"Отметки студента {name}: \n" +
+                      $"Средний балл {gpa:F2} \n" +
+                      $"🚫 нажмите на отметку чтобы удалить",
                 replyMarkup: inlineKeyboard
             );
+
+            return sentMessage.MessageId;
         }
-        public async Task SendNewMarksInlineKeyboard(long chatId)
+
+        public async Task<long> SendNewMarksInlineKeyboard(long chatId)
         {
             int[] marks = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             var inlineKeyboard = new InlineKeyboardMarkup(
-               marks.Select(m => InlineKeyboardButton.WithCallbackData(
-                   text: m.ToString(),
-                   callbackData: $"newMark_{m}"
-               )).Chunk(3)
-           );
+                marks.Select(m => InlineKeyboardButton.WithCallbackData(
+                    text: m.ToString(),
+                    callbackData: $"newMark_{m}"
+                )).Chunk(3)
+            );
 
-            await _botClient.SendMessage(
-              chatId: chatId,
-              text: "Нажмите чтобы добавить отметку:",
-              replyMarkup: inlineKeyboard
-          );
+            var sentMessage = await _botClient.SendMessage(
+                chatId: chatId,
+                text: "Нажмите чтобы добавить отметку:",
+                replyMarkup: inlineKeyboard
+            );
+
+            return sentMessage.MessageId;
         }
+
     }
 }

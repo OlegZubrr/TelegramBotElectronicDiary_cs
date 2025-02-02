@@ -24,12 +24,12 @@ namespace TelegramBotEFCore.Services
 
         private async Task<bool> IsTeacher(Guid userId) 
         {
-            TeacherEntity? teacher = await _teachersRepository.GetByUserId(userId);
+            var teacher = await _teachersRepository.GetByUserId(userId);
             return teacher != null;
         }
         private async Task<bool> IsStudent(Guid userId)
         {
-            StudentEntity? student = await _studentsRepository.GetByUserId(userId);
+            var student = await _studentsRepository.GetByUserId(userId);
             return student != null;
         }
         public async Task <UserState> GetState(long chatId) 

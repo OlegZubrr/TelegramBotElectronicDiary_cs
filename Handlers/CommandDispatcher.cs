@@ -71,7 +71,6 @@ namespace TelegramBotEFCore.Handlers
                 {"Покинуть группу",new LeaveGroupMessageHandler(botClient,usersRepository,studentsRepository,groupsRepository)},
                 {"Получить список предметов",new GetSubjectsMessageHandler(botClient,usersRepository,studentsRepository,teachersRepository,subjectsService,groupsRepository) }
                 
-
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {
@@ -96,9 +95,6 @@ namespace TelegramBotEFCore.Handlers
                 {"deleteMark_",new DeleteMarkCallbackHandler(botClient,marksRepository) },
                 {"acceptDelitingMark_",new DelitingMarkCallbackHandler(botClient,marksRepository,marksServise,usersRepository,teachersRepository,studentsRepository) },
                 {"cancelDelitingMark_",new DelitingMarkCallbackHandler(botClient, marksRepository, marksServise,usersRepository, teachersRepository, studentsRepository) }
-
-                
-
             };
         }
         public async Task DispatchAsync(Message message) 

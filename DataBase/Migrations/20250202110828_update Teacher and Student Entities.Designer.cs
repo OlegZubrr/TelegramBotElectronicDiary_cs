@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TelegramBotEFCore.DataBase;
 
@@ -11,9 +12,11 @@ using TelegramBotEFCore.DataBase;
 namespace TelegramBotEFCore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250202110828_update Teacher and Student Entities")]
+    partial class updateTeacherandStudentEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +50,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("TeacherEntityId");
 
-                    b.ToTable("Groups", (string)null);
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.MarkEntity", b =>
@@ -71,7 +74,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("Marks", (string)null);
+                    b.ToTable("Marks");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.StudentEntity", b =>
@@ -100,7 +103,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.StudentMessageEntity", b =>
@@ -126,7 +129,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("StudentMessages", (string)null);
+                    b.ToTable("StudentMessages");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.SubjectEntity", b =>
@@ -146,7 +149,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.TeacherEntity", b =>
@@ -183,7 +186,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Teachers", (string)null);
+                    b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.TeacherMessageEntity", b =>
@@ -209,7 +212,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("TeacherMessages", (string)null);
+                    b.ToTable("TeacherMessages");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.UserEntity", b =>
@@ -226,7 +229,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.UserRoleVerificationEntity", b =>
@@ -245,7 +248,7 @@ namespace TelegramBotEFCore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoleVerification", (string)null);
+                    b.ToTable("UserRoleVerification");
                 });
 
             modelBuilder.Entity("TelegramBotEFCore.DataBase.Models.GroupEntity", b =>

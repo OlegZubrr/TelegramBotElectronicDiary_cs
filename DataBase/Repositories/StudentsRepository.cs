@@ -32,6 +32,7 @@ namespace TelegramBotEFCore.DataBase.Repositories
         }
         public async Task <StudentEntity?> GetByUserId(Guid userId) 
         {
+            
             return await _dbContext.Students
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.UserId == userId);

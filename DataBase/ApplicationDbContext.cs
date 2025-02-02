@@ -37,6 +37,17 @@ namespace TelegramBotEFCore.DataBase
                 .HasConversion<string>()
                 .IsRequired();
 
+            modelBuilder.Entity<TeacherMessageEntity>()
+                .HasOne(tm => tm.Teacher)
+                .WithMany(t => t.Messages)
+                .HasForeignKey(tm => tm.TeacherId);
+
+            modelBuilder.Entity<StudentMessageEntity>()
+                .HasOne(sm => sm.Student)
+                .WithMany(t => t.Messages)
+                .HasForeignKey(sm => sm.StudentId);
+
+
         }
     }
 }
