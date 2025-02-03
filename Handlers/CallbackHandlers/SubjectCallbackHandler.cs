@@ -57,7 +57,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 }
                 if (teacher.CurrentGroupId == null)
                 {
-                    await _botClient.SendMessage(chatId, "Вы не выбрали группу \nвведите /getGroups чтобы сделать это");
+                    await _botClient.SendMessage(chatId, "Вы не выбрали группу ");
                     return;
                 }
 

@@ -13,9 +13,9 @@ using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers.CommandHandlers
 {
-    public class GetSubjectsMessageHandler:IMessageHandler
+    public class GetSubjectsMessageHandler : IMessageHandler
     {
-        private readonly ITelegramBotClient _botClient;
+        private readonly BotMessageService _botMessageService;
         private readonly UsersRepository _usersRepository;
         private readonly StudentsRepository _studentsRepository;
         private readonly TeachersRepository _teachersRepository;
@@ -23,15 +23,15 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
         private readonly GroupsRepository _groupsRepository;
 
         public GetSubjectsMessageHandler(
-            ITelegramBotClient botClient,
+            BotMessageService botMessageService,
             UsersRepository usersRepository,
             StudentsRepository studentsRepository,
             TeachersRepository teachersRepository,
             SubjectsService subjectsService,
             GroupsRepository groupsRepository
-            )
+        )
         {
-            _botClient = botClient;
+            _botMessageService = botMessageService;
             _usersRepository = usersRepository;
             _studentsRepository = studentsRepository;
             _teachersRepository = teachersRepository;
@@ -43,75 +43,61 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
         {
             var chatId = message.Chat.Id;
             var user = await _usersRepository.GetByTelegramId(chatId);
-            if (user == null) 
+            if (user == null)
             {
-                await _botClient.SendMessage(chatId, "Пользователь не найден");
+                await _botMessageService.SendAndStoreMessage(chatId, "Пользователь не найден");
                 return;
             }
             if (userStates.TryGetValue(chatId, out var state) && state == UserState.Teacher)
             {
                 var teacher = await _teachersRepository.GetByUserId(user.Id);
-                if (teacher == null) 
+                if (teacher == null)
                 {
-                    await _botClient.SendMessage(chatId,"Преподаватель не найден");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Преподаватель не найден");
                     return;
                 }
-                
-                if (teacher.CurrentGroupId == null) 
+
+                if (teacher.CurrentGroupId == null)
                 {
-                    await _botClient.SendMessage(chatId,"Сначало выберете группу");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Сначало выберете группу");
                     return;
                 }
-              
 
-                if (teacher != null)
-                {
-                    var groupId = (Guid)teacher.CurrentGroupId;
-                    var group = await _groupsRepository.GetById(groupId);
-                    var subjects = await _subjectsService.GetSubjects(chatId,groupId);
-                    await _teachersRepository.Update(teacher.Id, teacher.Name, groupId, teacher.CurrentSubjectId, teacher.CurrentStudentId);
+                var groupId = (Guid)teacher.CurrentGroupId;
+                var group = await _groupsRepository.GetById(groupId);
+                var subjects = await _subjectsService.GetSubjects(chatId, groupId);
+                await _teachersRepository.Update(teacher.Id, teacher.Name, groupId, teacher.CurrentSubjectId, teacher.CurrentStudentId);
 
-                    await _subjectsService.SendSubjectsInlineKeyboardAsync(chatId, group.Name, subjects);
-                }
-                else
-                {
-                    await _botClient.SendMessage(
-                        chatId: chatId,
-                        text: "Преподаватель не найден."
-                    );
-                }
+                await _subjectsService.SendSubjectsInlineKeyboardAsync(chatId, group.Name, subjects);
             }
             else if (state == UserState.Student)
             {
                 var student = await _studentsRepository.GetByUserId(user.Id);
                 if (student == null)
                 {
-                    await _botClient.SendMessage(chatId, "Студент не найден");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Студент не найден");
                     return;
                 }
-                
-                if (student.GroupId == null) 
-                {
-                    await _botClient.SendMessage(chatId, "Сначало выберите группу");
-                    return;
 
+                if (student.GroupId == null)
+                {
+                    await _botMessageService.SendAndStoreMessage(chatId, "Сначало выберите группу");
+                    return;
                 }
                 var groupId = (Guid)student.GroupId;
                 var group = await _groupsRepository.GetById(groupId);
-                if (group == null) 
+                if (group == null)
                 {
-                    await _botClient.SendMessage(chatId,"Группа не найдена");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Группа не найдена");
                     return;
                 }
                 var subjects = await _subjectsService.GetSubjects(chatId, groupId);
                 await _subjectsService.SendSubjectsInlineKeyboardAsync(chatId, group.Name, subjects);
-
             }
             else
             {
-                await _botClient.SendMessage(chatId, "сначало получите роль /getRole");
+                await _botMessageService.SendAndStoreMessage(chatId, "Сначала получите роль /getRole");
             }
-
         }
     }
 }

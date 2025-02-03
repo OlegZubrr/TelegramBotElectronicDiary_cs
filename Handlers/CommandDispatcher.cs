@@ -20,6 +20,7 @@ namespace TelegramBotEFCore.Handlers
     {
         private readonly Dictionary<string, IMessageHandler> _handlers;
         private readonly ITelegramBotClient _botClient;
+        private readonly BotMessageService _botMessageService;
         private readonly Dictionary<long, UserState> _userStates = new Dictionary<long, UserState>();
         private readonly Dictionary<UserState, IStateHandler> _stateHandlers;
         private readonly Dictionary<string, ICallbackHandler> _callbackHandlers;
@@ -33,6 +34,7 @@ namespace TelegramBotEFCore.Handlers
         private readonly MarksRepository _marksRepository;
         private readonly SubjectsService _subjectsService;
         private readonly MarksServise _marksServise;
+        private readonly MessagesRepository _messagesRepository;
 
         public CommandDispatcher
             (
@@ -46,7 +48,9 @@ namespace TelegramBotEFCore.Handlers
             StudentsRepository studentsRepository,
             MarksRepository marksRepository,
             SubjectsService subjectsService,
-            MarksServise marksServise
+            MarksServise marksServise,
+            MessagesRepository messagesRepository,
+            BotMessageService botMessageService
             ) 
         {
             _botClient = botClient;
@@ -60,16 +64,18 @@ namespace TelegramBotEFCore.Handlers
             _marksRepository = marksRepository;
             _subjectsService = subjectsService;
             _marksServise = marksServise;
+            _messagesRepository = messagesRepository;
+            _botMessageService = botMessageService;
             _handlers = new Dictionary<string, IMessageHandler> 
             {
-                {"/start",new StartCommandHandler(botClient)},
-                {"/getRole",new GetRoleCommandHandler(botClient)},
+                {"/start",new StartCommandHandler(botMessageService,usersRepository,messagesRepository)},
+                {"/getRole",new GetRoleCommandHandler(botMessageService)},
                 {"Добавить группу",new AddGroupHandler(botClient)},
                 {"Получить список моих групп",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
                 {"Добавить предмет",new AddSubjectHandler(botClient)},
                 {"Получить список всех групп",new GetGroupsHandler(botClient,groupsRepository)},
                 {"Покинуть группу",new LeaveGroupMessageHandler(botClient,usersRepository,studentsRepository,groupsRepository)},
-                {"Получить список предметов",new GetSubjectsMessageHandler(botClient,usersRepository,studentsRepository,teachersRepository,subjectsService,groupsRepository) }
+                {"Получить список предметов",new GetSubjectsMessageHandler(botMessageService,usersRepository,studentsRepository,teachersRepository,subjectsService,groupsRepository) }
                 
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
@@ -103,18 +109,30 @@ namespace TelegramBotEFCore.Handlers
             {
                 return;
             }
-            var userId = message.Chat.Id;
+            var chatId = message.Chat.Id;
+            
 
-            if (!_userStates.TryGetValue(userId, out var currentState))
+            if (!_userStates.TryGetValue(chatId, out var currentState))
             {
-                currentState = await _userRoleService.GetState(userId);
-                _userStates[userId] = currentState;
+                currentState = await _userRoleService.GetState(chatId);
+                _userStates[chatId] = currentState;
             }
             Console.WriteLine(currentState);
 
             if (_handlers.TryGetValue(message.Text, out var handler))
             {
+                var user = await _usersRepository.GetByTelegramId(chatId);
+                var messageIds = user.MesssageIds;
+                var messages = await _messagesRepository.GetByIds(messageIds);
+                foreach (var m in messages)
+                {
+                    await _botClient.DeleteMessage(chatId, (int)m.MessageId);
+                }
+                user.MesssageIds.Clear();
+
+                await _usersRepository.Update(user.Id, user.TelegramId, user.UserName, user.MesssageIds);
                 await handler.HandleMessageAsync(message,_userStates);
+           
             }
             else if (_stateHandlers.TryGetValue(currentState, out var statehandler)) 
             {

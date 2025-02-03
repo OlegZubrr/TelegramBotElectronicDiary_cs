@@ -8,16 +8,17 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
+using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers.CommandHandlers
 {
     public class GetRoleCommandHandler : IMessageHandler
     {
-        private readonly ITelegramBotClient _botClient;
+        private readonly BotMessageService _botMessageService;
 
-        public GetRoleCommandHandler(ITelegramBotClient botClient)
+        public GetRoleCommandHandler(BotMessageService botMessageService)
         {
-            _botClient = botClient;
+            _botMessageService = botMessageService;
         }
         public async Task HandleMessageAsync(Message message, Dictionary<long, UserState> userStates)
         {
@@ -34,15 +35,15 @@ namespace TelegramBotEFCore.Handlers.CommandHandlers
                         InlineKeyboardButton.WithCallbackData("Стать преподавателем", "becomeTeacher")
                     }
                 });
-                await _botClient.SendMessage(
-                    chatId: message.Chat.Id,
-                    text: "Выберите действие:",
-                     replyMarkup: inlineKeyboard
-                    );
+                string responce = "Выберите действие:";
+                await _botMessageService.SendAndStoreMessage(chatId,responce,inlineKeyboard);
+
             }
             else 
             {
-                await _botClient.SendMessage(chatId, "сейчас вы не можит сделать это");
+                
+                string responce = "Cейчас вы не можит сделать это";
+                await _botMessageService.SendAndStoreMessage(chatId,responce);
             }
             
 

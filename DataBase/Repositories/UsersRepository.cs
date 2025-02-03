@@ -63,6 +63,15 @@ namespace TelegramBotEFCore.DataBase.Repositories
                 UserName = userName
             };
         }
+        public async Task Update(Guid id,long telegramId, string? userName,List<Guid> messageIds) 
+        {
+            await _dbContext.Users
+                .Where(u => u.Id == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(u => u.TelegramId, telegramId)
+                    .SetProperty(u => u.UserName, userName)
+                    .SetProperty(u => u.MesssageIds, messageIds));
+        }
         public async Task Delete(Guid id) 
         {
             await _dbContext.Users
