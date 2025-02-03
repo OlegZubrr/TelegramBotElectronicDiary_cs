@@ -70,37 +70,37 @@ namespace TelegramBotEFCore.Handlers
             {
                 {"/start",new StartCommandHandler(botMessageService,usersRepository,messagesRepository)},
                 {"/getRole",new GetRoleCommandHandler(botMessageService)},
-                {"Добавить группу",new AddGroupHandler(botClient)},
-                {"Получить список моих групп",new GetMyGroupsHandlers(botClient,usersRepository,teachersRepository,groupsRepository)},
-                {"Добавить предмет",new AddSubjectHandler(botClient)},
-                {"Получить список всех групп",new GetGroupsHandler(botClient,groupsRepository)},
-                {"Покинуть группу",new LeaveGroupMessageHandler(botClient,usersRepository,studentsRepository,groupsRepository)},
+                {"Добавить группу",new AddGroupHandler(botMessageService)},
+                {"Получить список моих групп",new GetMyGroupsHandlers(botMessageService,usersRepository,teachersRepository,groupsRepository)},
+                {"Добавить предмет",new AddSubjectHandler(botMessageService)},
+                {"Получить список всех групп",new GetGroupsHandler(botMessageService,groupsRepository)},
+                {"Покинуть группу",new LeaveGroupMessageHandler(botMessageService,usersRepository,studentsRepository,groupsRepository)},
                 {"Получить список предметов",new GetSubjectsMessageHandler(botMessageService,usersRepository,studentsRepository,teachersRepository,subjectsService,groupsRepository) }
                 
             };
             _stateHandlers = new Dictionary<UserState, IStateHandler>
             {
                 
-                {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botClient) },
-                {UserState.GettingStudentData,new GettingStudentDataHandler(botClient,usersRepository,studentsRepository) },
-                {UserState.GettingGroupData,new GettingGroupDataHandler(botClient,groupsRepository,teachersRepository,usersRepository) },
-                {UserState.GettingSubjectData,new GettingSubjectDataHandler(botClient,subjectsRepository,usersRepository,teachersRepository,groupsRepository) },
+                {UserState.GettingTeacherData,new GettingTeacherDataHandler(teachersRepository,usersRepository,botMessageService) },
+                {UserState.GettingStudentData,new GettingStudentDataHandler(botMessageService,usersRepository,studentsRepository) },
+                {UserState.GettingGroupData,new GettingGroupDataHandler(botMessageService,groupsRepository,teachersRepository,usersRepository) },
+                {UserState.GettingSubjectData,new GettingSubjectDataHandler(botMessageService,subjectsRepository,usersRepository,teachersRepository,groupsRepository) },
                 {UserState.Teacher,new GetTeacherReplyKeyboard(botClient)},
                 {UserState.Student,new GetStudentReplyKeyBoard(botClient)},
             };
             _callbackHandlers = new Dictionary<string, ICallbackHandler>
             {
-                {"group_", new GroupCallbackHandler(botClient, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository,subjectsService) },
-                {"subject_",new SubjectCallbackHandler(botClient,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
-                {"student_",new StudentCallbackHandler(botClient,usersRepository,teachersRepository,studentsRepository,marksRepository,marksServise) },
-                {"newMark_",new NewMarkCallbackHandler(botClient,usersRepository,teachersRepository,marksRepository,marksServise,studentsRepository) },
-                {"cancel_",new GettingRoleCallbackHandler(botClient,usersRepository) },
-                {"accept_",new GettingRoleCallbackHandler(botClient,usersRepository) },
-                {"becomeStudent",new BecomeStudentCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
-                {"becomeTeacher",new BecomeTeacherCallbackHandler(botClient,userRoleVerificationRepository,usersRepository)},
-                {"deleteMark_",new DeleteMarkCallbackHandler(botClient,marksRepository) },
-                {"acceptDelitingMark_",new DelitingMarkCallbackHandler(botClient,marksRepository,marksServise,usersRepository,teachersRepository,studentsRepository) },
-                {"cancelDelitingMark_",new DelitingMarkCallbackHandler(botClient, marksRepository, marksServise,usersRepository, teachersRepository, studentsRepository) }
+                {"group_", new GroupCallbackHandler(botMessageService, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository,subjectsService) },
+                {"subject_",new SubjectCallbackHandler(botMessageService,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
+                {"student_",new StudentCallbackHandler(botMessageService,usersRepository,teachersRepository,studentsRepository,marksRepository,marksServise) },
+                {"newMark_",new NewMarkCallbackHandler(botMessageService,usersRepository,teachersRepository,marksRepository,marksServise,studentsRepository) },
+                {"cancel_",new GettingRoleCallbackHandler(botMessageService,usersRepository) },
+                {"accept_",new GettingRoleCallbackHandler(botMessageService,usersRepository) },
+                {"becomeStudent",new BecomeStudentCallbackHandler(botMessageService,userRoleVerificationRepository,usersRepository)},
+                {"becomeTeacher",new BecomeTeacherCallbackHandler(botMessageService,userRoleVerificationRepository,usersRepository)},
+                {"deleteMark_",new DeleteMarkCallbackHandler(botMessageService,marksRepository) },
+                {"acceptDelitingMark_",new DelitingMarkCallbackHandler(botMessageService,marksRepository,marksServise,usersRepository,teachersRepository,studentsRepository) },
+                {"cancelDelitingMark_",new DelitingMarkCallbackHandler(botMessageService, marksRepository, marksServise,usersRepository, teachersRepository, studentsRepository) }
             };
         }
         public async Task DispatchAsync(Message message) 
@@ -121,21 +121,15 @@ namespace TelegramBotEFCore.Handlers
 
             if (_handlers.TryGetValue(message.Text, out var handler))
             {
-                var user = await _usersRepository.GetByTelegramId(chatId);
-                var messageIds = user.MesssageIds;
-                var messages = await _messagesRepository.GetByIds(messageIds);
-                foreach (var m in messages)
-                {
-                    await _botClient.DeleteMessage(chatId, (int)m.MessageId);
-                }
-                user.MesssageIds.Clear();
+                await DeletePreviousMessages(chatId);
 
-                await _usersRepository.Update(user.Id, user.TelegramId, user.UserName, user.MesssageIds);
                 await handler.HandleMessageAsync(message,_userStates);
            
             }
             else if (_stateHandlers.TryGetValue(currentState, out var statehandler)) 
             {
+                await DeletePreviousMessages(chatId);
+
                 await statehandler.HandleAsync(message,_userStates);
             }
             else
@@ -163,6 +157,8 @@ namespace TelegramBotEFCore.Handlers
             var handlerEntry = _callbackHandlers.FirstOrDefault(h => callbackQuery.Data.StartsWith(h.Key));
             if (handlerEntry.Value != null)
             {
+                await DeletePreviousMessages(chatId);
+
                 await handlerEntry.Value.HandleCallbackAsync(callbackQuery,_userStates);
             }
         }
@@ -170,6 +166,18 @@ namespace TelegramBotEFCore.Handlers
         {
             string response = "Извините, я не понимаю эту команду.";
             await _botClient.SendMessage(message.Chat.Id, response);
+        }
+        private async Task DeletePreviousMessages(long chatId)
+        {
+            var user = await _usersRepository.GetByTelegramId(chatId);
+            var messageIds = user.MesssageIds;
+            var messages = await _messagesRepository.GetByIds(messageIds);
+            foreach (var m in messages)
+            {
+                await _botClient.DeleteMessage(chatId, (int)m.MessageId);
+            }
+            user.MesssageIds.Clear();
+            await _usersRepository.Update(user.Id, user.TelegramId, user.UserName, user.MesssageIds);
         }
     }
 }

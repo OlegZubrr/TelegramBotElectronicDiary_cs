@@ -1,46 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
-using Telegram.Bot;
+using System.Threading.Tasks;
 using Telegram.Bot.Types;
-using TelegramBotEFCore.DataBase.Models;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
-using Telegram.Bot.Types.ReplyMarkups;
+using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers.CallbackHandlers
 {
     public class BecomeStudentCallbackHandler : ICallbackHandler
     {
-        private readonly ITelegramBotClient _botClient;
-        private UserRoleVerificationRepository _userRoleVerificationRepository;
-        private UsersRepository _usersRepository;
+        private readonly BotMessageService _botMessageService;
+        private readonly UserRoleVerificationRepository _userRoleVerificationRepository;
+        private readonly UsersRepository _usersRepository;
 
         public BecomeStudentCallbackHandler(
-            ITelegramBotClient botClient,
+            BotMessageService botMessageService,
             UserRoleVerificationRepository userRoleVerificationRepository,
-            UsersRepository usersRepository
-            )
+            UsersRepository usersRepository)
         {
-            _botClient = botClient;
-            _usersRepository = usersRepository;
+            _botMessageService = botMessageService;
             _userRoleVerificationRepository = userRoleVerificationRepository;
+            _usersRepository = usersRepository;
         }
 
         public async Task HandleCallbackAsync(CallbackQuery callbackQuery, Dictionary<long, UserState> userStates)
         {
             var chatId = callbackQuery.Message.Chat.Id;
-            if (userStates.TryGetValue(chatId, out var state) && state == UserState.WaitingForRole) 
+            if (userStates.TryGetValue(chatId, out var state) && state == UserState.WaitingForRole)
             {
                 var user = await _usersRepository.GetByTelegramId(chatId);
-
-                await _botClient.SendMessage(chatId, "Дождитесь подтверждения от администратора");
+                await _botMessageService.SendAndStoreMessage(chatId, "Дождитесь подтверждения от администратора");
                 string adminChatId = ConfigurationManager.AppSettings[nameof(adminChatId)];
-
                 var inlineKeyboard = new InlineKeyboardMarkup(new[]
                 {
                     new[]
@@ -49,20 +43,13 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                         InlineKeyboardButton.WithCallbackData("Отклонить ❌", $"cancel_{user.Id}")
                     }
                 });
-                await _botClient.SendMessage(
-                    adminChatId,
-                    $"Пользователь {callbackQuery.Message.Chat.Username} запросил стать студентом.\n",
-                    replyMarkup: inlineKeyboard
-                );
+                await _botMessageService.SendAndStoreMessage(long.Parse(adminChatId), $"Пользователь {callbackQuery.Message.Chat.Username} запросил стать студентом.\n", inlineKeyboard);
                 userStates[chatId] = UserState.BecomingStudent;
             }
-            else 
+            else
             {
-                await _botClient.SendMessage(chatId, "Сначала выполните команду /getRole.");
+                await _botMessageService.SendAndStoreMessage(chatId, "Сначала выполните команду /getRole.");
             }
         }
-
-       
-
     }
 }

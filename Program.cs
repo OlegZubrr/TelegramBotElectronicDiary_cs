@@ -29,10 +29,10 @@ namespace TelegramBotEFCore
             var subjectRepository = new SubjectsRepository(dbContext);
             var studentRepository = new StudentsRepository(dbContext);
             var marksRepository = new MarksRepository(dbContext);
-            var subjectServise = new SubjectsService(client, groupRepository, subjectRepository);
-            var marksServise = new MarksServise(client);
             var messagesRepository = new MessagesRepository(dbContext);
             var botMessageService = new BotMessageService(client,usersRepository,messagesRepository);
+            var marksServise = new MarksServise(botMessageService);
+            var subjectServise = new SubjectsService(botMessageService, groupRepository, subjectRepository);
             var commandDispatcher = new CommandDispatcher
                 (
                 client, userRoleVerificationRepository, usersRepository,

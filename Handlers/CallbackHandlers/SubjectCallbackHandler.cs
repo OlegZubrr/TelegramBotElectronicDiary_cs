@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotEFCore.DataBase.Models;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
+using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers.CallbackHandlers
 {
     public class SubjectCallbackHandler : ICallbackHandler
     {
-        private readonly ITelegramBotClient _botClient;
+        private readonly BotMessageService _botMessageService;
         private readonly UsersRepository _usersRepository;
         private readonly SubjectsRepository _subjectsRepository;
         private readonly GroupsRepository _groupsRepository;
@@ -24,15 +23,15 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
         private readonly MarksRepository _marksRepository;
 
         public SubjectCallbackHandler(
-            ITelegramBotClient botClient,
+            BotMessageService botMessageService,
             UsersRepository usersRepository,
             SubjectsRepository subjectsRepository,
             GroupsRepository groupsRepository,
             TeachersRepository teachersRepository,
             StudentsRepository studentsRepository,
-            MarksRepository marksRepository) 
+            MarksRepository marksRepository)
         {
-            _botClient = botClient;
+            _botMessageService = botMessageService;
             _usersRepository = usersRepository;
             _subjectsRepository = subjectsRepository;
             _groupsRepository = groupsRepository;
@@ -40,6 +39,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             _studentsRepository = studentsRepository;
             _marksRepository = marksRepository;
         }
+
         public async Task HandleCallbackAsync(CallbackQuery callbackQuery, Dictionary<long, UserState> userStates)
         {
             var chatId = callbackQuery.Message.Chat.Id;
@@ -52,33 +52,34 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 var teacher = await _teachersRepository.GetByUserId(user.Id);
                 if (teacher == null)
                 {
-                    await _botClient.SendMessage(chatId, "Преподаватель не найден");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Преподаватель не найден");
                     return;
                 }
                 if (teacher.CurrentGroupId == null)
                 {
-                    await _botClient.SendMessage(chatId, "Вы не выбрали группу ");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Вы не выбрали группу ");
                     return;
                 }
 
                 var groupId = (Guid)teacher.CurrentGroupId;
                 var group = await _groupsRepository.GetById(groupId);
-
+                if (group == null) 
+                {
+                    await _botMessageService.SendAndStoreMessage(chatId, "Группа не найдена");
+                    return;
+                }
                 var studentIds = group.StudentIds;
-
                 var students = await _studentsRepository.GetByIds(studentIds);
 
                 await SendStudentsInlineKeyboard(students, chatId);
-
-                await _teachersRepository.Update(teacher.Id,teacher.Name,teacher.CurrentGroupId,subjectId,teacher.CurrentStudentId);
-
+                await _teachersRepository.Update(teacher.Id, teacher.Name, teacher.CurrentGroupId, subjectId, teacher.CurrentStudentId);
             }
-            else if (state == UserState.Student) 
+            else if (state == UserState.Student)
             {
                 var student = await _studentsRepository.GetByUserId(user.Id);
                 if (student == null)
                 {
-                    await _botClient.SendMessage(chatId,"студент не найден");
+                    await _botMessageService.SendAndStoreMessage(chatId, "студент не найден");
                     return;
                 }
                 var marks = await _marksRepository.GetByStudentAndSubjectId(student.Id, subjectId);
@@ -88,15 +89,15 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 }
                 else
                 {
-                    await _botClient.SendMessage(chatId, "Вы ещё не получали отметки по данному предмету");
+                    await _botMessageService.SendAndStoreMessage(chatId, "Вы ещё не получали отметки по данному предмету");
                 }
-
             }
             else
             {
-                await _botClient.SendMessage(chatId, "Сначало получите роль /getRole");
+                await _botMessageService.SendAndStoreMessage(chatId, "Сначало получите роль /getRole");
             }
         }
+
         private async Task SendStudentsInlineKeyboard(List<StudentEntity> students, long chatId)
         {
             var inlineKeyboard = new InlineKeyboardMarkup(
@@ -106,12 +107,9 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 )).Chunk(1)
             );
 
-            await _botClient.SendMessage(
-                chatId: chatId,
-                text: "Выберите студента:",
-                replyMarkup: inlineKeyboard
-            );
+            await _botMessageService.SendAndStoreMessage(chatId, "Выберите студента:", inlineKeyboard);
         }
+
         private async Task SendMarksInlineKeyboard(List<MarkEntity> marks, long chatId, string name)
         {
             var inlineKeyboard = new InlineKeyboardMarkup(
@@ -121,12 +119,9 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
                 )).Chunk(1)
             );
             float gpa = (float)marks.Sum(m => m.Value) / marks.Count;
-            await _botClient.SendMessage(
-                chatId: chatId,
-                text: $"{name} Ваши отметки по данному предмету: \n" +
-                $"Ваш средний балл {gpa:F2}",
-                replyMarkup: inlineKeyboard
-            );
+            await _botMessageService.SendAndStoreMessage(chatId,
+                $"{name} Ваши отметки по данному предмету: \nВаш средний балл {gpa:F2}",
+                inlineKeyboard);
         }
     }
 }

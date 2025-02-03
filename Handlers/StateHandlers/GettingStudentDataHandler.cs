@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBotEFCore.DataBase.Repositories;
 using TelegramBotEFCore.Extensions;
 using TelegramBotEFCore.Handlers.Interfaces;
 using TelegramBotEFCore.Models;
+using TelegramBotEFCore.Services;
 
 namespace TelegramBotEFCore.Handlers.StateHandlers
 {
-    public class GettingStudentDataHandler:IStateHandler
+    public class GettingStudentDataHandler : IStateHandler
     {
-        private StudentsRepository _studentsRepository;
-        private UsersRepository _usersRepository;
-        private ITelegramBotClient _botClient;
-        public GettingStudentDataHandler(ITelegramBotClient botClient,UsersRepository usersRepository ,StudentsRepository studentsRepository)
+        private readonly StudentsRepository _studentsRepository;
+        private readonly UsersRepository _usersRepository;
+        private readonly BotMessageService _botMessageService;
+
+        public GettingStudentDataHandler(
+            BotMessageService botMessageService,
+            UsersRepository usersRepository,
+            StudentsRepository studentsRepository)
         {
-           
+            _botMessageService = botMessageService;
             _usersRepository = usersRepository;
-            _botClient = botClient;
             _studentsRepository = studentsRepository;
         }
 
@@ -31,9 +32,9 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
 
             var chatId = message.Chat.Id;
             string name = message.Text;
-            if (!name.IsValidName()) 
+            if (!name.IsValidName())
             {
-                await _botClient.SendMessage(chatId, $"Неправельный формат имени попробуйте ещё раз");
+                await _botMessageService.SendAndStoreMessage(chatId, "Неправельный формат имени попробуйте ещё раз");
                 return;
             }
 
@@ -43,8 +44,7 @@ namespace TelegramBotEFCore.Handlers.StateHandlers
             await _studentsRepository.Add(user.Id, guid, name);
             userStates[chatId] = UserState.Student;
 
-            await _botClient.SendMessage(chatId, $"Поздравляю 👏 {name} вы вошли как студент \n");
+            await _botMessageService.SendAndStoreMessage(chatId, $"Поздравляю 👏 {name} вы вошли как студент \n");
         }
-
     }
 }
