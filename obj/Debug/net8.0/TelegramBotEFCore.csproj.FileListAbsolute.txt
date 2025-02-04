@@ -118,3 +118,4 @@ D:\CodeC#\TelegramBotEFCore\TelegramBotEFCore\obj\Debug\net8.0\TelegramBotEFCore
 D:\CodeC#\TelegramBotEFCore\TelegramBotEFCore\obj\Debug\net8.0\TelegramBotEFCore.genruntimeconfig.cache
 D:\CodeC#\TelegramBotEFCore\TelegramBotEFCore\obj\Debug\net8.0\ref\TelegramBotEFCore.dll
 D:\CodeC#\TelegramBotEFCore\TelegramBotEFCore\bin\Debug\net8.0\Telegram.Bot.dll
+D:\CodeC#\TelegramBotEFCore\TelegramBotEFCore\obj\Debug\net8.0\TelegramBotEFCore.sourcelink.json

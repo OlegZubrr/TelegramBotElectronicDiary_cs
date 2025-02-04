@@ -93,7 +93,7 @@ namespace TelegramBotEFCore.Handlers
                 {"group_", new GroupCallbackHandler(botMessageService, groupsRepository,teachersRepository,usersRepository,studentsRepository,subjectsRepository,subjectsService) },
                 {"subject_",new SubjectCallbackHandler(botMessageService,usersRepository,subjectsRepository,groupsRepository,teachersRepository,studentsRepository,marksRepository) },
                 {"student_",new StudentCallbackHandler(botMessageService,usersRepository,teachersRepository,studentsRepository,marksRepository,marksServise) },
-                {"newMark_",new NewMarkCallbackHandler(botMessageService,usersRepository,teachersRepository,marksRepository,marksServise,studentsRepository) },
+                {"newMark_",new NewMarkCallbackHandler(botMessageService,usersRepository,teachersRepository,marksRepository,marksServise,studentsRepository,subjectsRepository) },
                 {"cancel_",new GettingRoleCallbackHandler(botMessageService,usersRepository) },
                 {"accept_",new GettingRoleCallbackHandler(botMessageService,usersRepository) },
                 {"becomeStudent",new BecomeStudentCallbackHandler(botMessageService,userRoleVerificationRepository,usersRepository)},
