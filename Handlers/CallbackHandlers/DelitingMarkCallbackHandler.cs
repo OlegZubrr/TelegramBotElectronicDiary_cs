@@ -17,6 +17,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
         private readonly UsersRepository _usersRepository;
         private readonly TeachersRepository _teachersRepository;
         private readonly StudentsRepository _studentsRepository;
+        private readonly SubjectsRepository _subjectsRepository;
 
         public DelitingMarkCallbackHandler(
             BotMessageService botMessageService,
@@ -24,7 +25,8 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             MarksServise marksServise,
             UsersRepository usersRepository,
             TeachersRepository teachersRepository,
-            StudentsRepository studentsRepository)
+            StudentsRepository studentsRepository,
+            SubjectsRepository subjectsRepository)
         {
             _botMessageService = botMessageService;
             _marksRepository = marksRepository;
@@ -32,6 +34,7 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             _usersRepository = usersRepository;
             _teachersRepository = teachersRepository;
             _studentsRepository = studentsRepository;
+            _subjectsRepository = subjectsRepository;
         }
 
         public async Task HandleCallbackAsync(CallbackQuery callbackQuery, Dictionary<long, UserState> userStates)
@@ -80,6 +83,18 @@ namespace TelegramBotEFCore.Handlers.CallbackHandlers
             {
                 await _marksRepository.Delete(markId);
                 await _botMessageService.SendAndStoreMessage(chatId, $"Отметка {mark.Value} была удалена");
+                var studentUserId = student.UserId; 
+                var studentUser = await _usersRepository.GetById(studentUserId);
+                if (studentUser == null) 
+                {
+                    await _botMessageService.SendAndStoreMessage(chatId,"Студент не найден");
+                    return;
+                }
+                var studentUserChatId = studentUser.TelegramId;
+                var subject = await _subjectsRepository.GetById(subjectId);
+                var responce = $"Преподаватель удалил отметку {mark.Value} по предмету {subject.Name}";
+                await _botMessageService.SendAndStoreMessage(studentUserChatId,responce);
+
             }
             else
             {

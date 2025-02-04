@@ -99,8 +99,8 @@ namespace TelegramBotEFCore.Handlers
                 {"becomeStudent",new BecomeStudentCallbackHandler(botMessageService,userRoleVerificationRepository,usersRepository)},
                 {"becomeTeacher",new BecomeTeacherCallbackHandler(botMessageService,userRoleVerificationRepository,usersRepository)},
                 {"deleteMark_",new DeleteMarkCallbackHandler(botMessageService,marksRepository) },
-                {"acceptDelitingMark_",new DelitingMarkCallbackHandler(botMessageService,marksRepository,marksServise,usersRepository,teachersRepository,studentsRepository) },
-                {"cancelDelitingMark_",new DelitingMarkCallbackHandler(botMessageService, marksRepository, marksServise,usersRepository, teachersRepository, studentsRepository) }
+                {"acceptDelitingMark_",new DelitingMarkCallbackHandler(botMessageService,marksRepository,marksServise,usersRepository,teachersRepository,studentsRepository,subjectsRepository) },
+                {"cancelDelitingMark_",new DelitingMarkCallbackHandler(botMessageService, marksRepository, marksServise,usersRepository, teachersRepository, studentsRepository,subjectsRepository) }
             };
         }
         public async Task DispatchAsync(Message message) 
